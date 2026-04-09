@@ -12,7 +12,7 @@ const recipes = ref([])
 const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
 
 const searchRecipes = async () => {
-  console.log("clicked", query.value)  // 👈 ADD THIS LINE
+  console.log("clicked", query.value)  
 
   if (!query.value) return
 
@@ -21,7 +21,7 @@ const searchRecipes = async () => {
       `http://localhost:3000/api/recipes?search=${query.value}`
     )
 
-    console.log("API response:", res.data) // 👈 ADD THIS TOO
+    console.log("API response:", res.data) 
 
     recipes.value = res.data
   } catch (err) {
