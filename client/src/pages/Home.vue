@@ -9,7 +9,8 @@
       <nav class="nav-links">
         <a href="#">Search</a>
         <a href="#">Calendar</a>
-        <a href="#">Favorites</a>
+        
+        <router-link to="/favorites">Favorites</router-link>
 
         <template v-if="authUser">
           <button class="signout-btn" @click="handleLogout">Sign out</button>
