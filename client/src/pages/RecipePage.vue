@@ -35,6 +35,12 @@
               <div v-for="diet in recipe.diets?.slice(0,2)" :key="diet" class="stat-chip">🌿 {{ diet }}</div>
             </div>
 
+            <!-- FAVORITE BUTTON -->
+            <button class="fav-btn" @click="toggleFavorite(recipe)">
+              <Bookmark :fill="isFavorited(recipe.id) ? '#fff' : 'none'" :size="18" />
+              {{ isFavorited(recipe.id) ? 'Saved' : 'Save to Favorites' }}
+            </button>
+
             <!-- NUTRITION -->
             <div v-if="nutrition.length" class="nutrition-summary">
               <div class="nutrition-item">
@@ -92,8 +98,10 @@
 </template>
 
 <script setup>
+import { Bookmark } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useFavorites } from '../composables/useFavorites'
 
 const route = useRoute()
 const recipe = ref(null)
@@ -101,6 +109,8 @@ const loading = ref(true)
 const error = ref(null)
 
 const nutrition = ref([])
+
+const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
 
 const get = (name) => {
   const found = nutrition.value.find(n => n.name === name)
@@ -119,6 +129,7 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  await loadFavorites()
 })
 </script>
 
@@ -184,6 +195,21 @@ onMounted(async () => {
   border-radius: 20px;
   padding: 4px 14px;
   font-size: 0.85rem;
+}
+
+.fav-btn {
+  align-self: flex-start;
+  background: #5a3434;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .nutrition-summary {
