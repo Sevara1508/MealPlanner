@@ -80,11 +80,7 @@
 
       <section class="nutrition-section">
         <h2>Nutrition Overview</h2>
-
-        <div class="nutrition-grid">
-          <div class="nutrition-box">Pie Chart</div>
-          <div class="nutrition-box">Bar Chart</div>
-        </div>
+        <NutritionCharts :mealPlan="mealPlan" />
       </section>
     </main>
 
@@ -97,6 +93,7 @@
 </template>
 
 <script setup>
+import NutritionCharts from '../components/NutritionCharts.vue'
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
@@ -142,9 +139,28 @@ function dragStart(recipe) {
   draggedRecipe.value = recipe
 }
 
-function dropMeal(day) {
-  if (draggedRecipe.value) {
-    mealPlan.value[day] = draggedRecipe.value
+async function dropMeal(day) {
+  if (!draggedRecipe.value) return
+
+  try {
+    const res = await axios.get(`http://localhost:3001/api/recipes/${draggedRecipe.value.id}`, {
+      params: { includeNutrition: true },
+      withCredentials: true,
+    })
+
+    const nutrients = res.data.nutrition?.nutrients || []
+    const get = (name) => Math.round(nutrients.find(n => n.name === name)?.amount ?? 0)
+
+    mealPlan.value[day] = {
+      ...draggedRecipe.value,
+      calories: get('Calories'),
+      protein: get('Protein'),
+      carbs: get('Carbohydrates'),
+      fat: get('Fat'),
+    }
+  } catch (err) {
+    console.error('Failed to fetch nutrition on drop:', err)
+    mealPlan.value[day] = draggedRecipe.value // fallback without nutrition
   }
 }
 
