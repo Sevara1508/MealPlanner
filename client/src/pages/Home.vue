@@ -41,6 +41,7 @@
             class="recipe-card"
             draggable="true"
             @dragstart="dragStart(recipe)"
+            @click="$router.push(`/recipe/${recipe.id}`)"
           >
             <img :src="recipe.image" :alt="recipe.title" />
             <p>{{ recipe.title }}</p>
