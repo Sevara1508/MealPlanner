@@ -31,13 +31,53 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search recipes..."
+            @keyup.enter="searchRecipes"
           />
           <button @click="searchRecipes">Search</button>
         </div>
+        <div class="filters">
+          <label>
+            <input type="checkbox" v-model="filters.vegetarian" />
+            Vegetarian
+          </label>
 
+          <label>
+            <input type="checkbox" v-model="filters.vegan" />
+            Vegan
+          </label>
+
+          <label>
+            <input type="checkbox" v-model="filters.glutenFree" />
+            Gluten Free
+          </label>
+
+          <label>
+            <input type="checkbox" v-model="filters.dairyFree" />
+            Dairy Free
+          </label>
+
+          <div>
+            <label>Max Time (mins): </label>
+            <input
+              type="number"
+              v-model.number="filters.maxTime"
+              placeholder="e.g. 30"
+            />
+          </div>
+
+          <div>
+            <label>Servings: </label>
+            <input
+              type="number"
+              v-model.number="filters.servings"
+              placeholder="e.g. 4"
+            />
+          </div>
+
+        </div>
         <div v-if="recipes.length" class="recipe-grid">
           <div
-            v-for="recipe in recipes"
+            v-for="recipe in filteredRecipes"
             :key="recipe.id"
             class="recipe-card"
             draggable="true"
@@ -121,6 +161,56 @@ const mealPlan = ref({
   Sun: null,
 })
 
+const filters = ref({
+  vegetarian: false,
+  vegan: false,
+  glutenFree: false,
+  dairyFree: false,
+  maxTime: null,
+  servings: null,
+})
+
+const filteredRecipes = computed(() => {
+  return recipes.value.filter((recipe) => {
+    const nutrients = recipe.nutrition?.nutrients || []
+
+    const calories = nutrients.find(n => n.name === 'Calories')?.amount || 0
+
+    const isVegetarian = recipe.vegetarian === true
+    const isVegan = recipe.vegan === true
+    const isGlutenFree = recipe.glutenFree === true
+    const isDairyFree = recipe.dairyFree === true
+
+    const time = recipe.readyInMinutes || 0
+    const servings = recipe.servings || 0
+
+    const ingredients = [
+      ...(recipe.missedIngredients || []),
+      ...(recipe.usedIngredients || []),
+    ].map(i => (i.name || '').toLowerCase())
+
+    //vegetarian filter
+    if (filters.value.vegetarian && !isVegetarian) return false
+
+    //vegan filter
+    if (filters.value.vegan && !isVegan) return false
+
+    //gluten filter
+    if (filters.value.glutenFree && !isGlutenFree) return false
+
+    //dairy filter
+    if (filters.value.dairyFree && !isDairyFree) return false
+
+    //time filter
+    if (filters.value.maxTime && time > filters.value.maxTime) return false
+
+    // servings filter
+    if (filters.value.servings && servings < filters.value.servings) return false
+
+    return true
+  })
+})
+
 async function searchRecipes() {
   if (!searchQuery.value.trim()) return
 
@@ -179,6 +269,39 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+  align-items: center;
+
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  color: var(--deep-rosewood);
+}
+
+.filters label {
+  font-weight: 500;
+  color: var(--dusty-rosewood);
+}
+
+.filters input {
+  background: transparent;
+  border: 1px solid var(--warm-beige);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  color: var(--deep-rosewood);
+}
+
+.filters input:focus {
+  outline: none;
+  border-color: var(--dusty-rosewood);
+  box-shadow: 0 0 0 2px rgba(117, 55, 66, 0.15);
+}
+
 .page {
   min-height: 100vh;
   background: #ecdcd4;
@@ -272,7 +395,8 @@ onMounted(async () => {
 }
 
 .search-bar input {
-  width: 265px;
+  flex: 1;
+  min-width: 300px;
   padding: 0.8rem 0.9rem;
   border: none;
   border-radius: 12px;
