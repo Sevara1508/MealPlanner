@@ -3,11 +3,15 @@
 
     <!-- NAVBAR -->
     <nav class="navbar">
-      <h1>🍽️ Meal Planner</h1>
+      <div class="brand">
+        <span class="brand-icon">🍽</span>
+        <span class="brand-text">Meal Planner</span>
+      </div>
+
       <div class="nav-links">
-        <span @click="$router.push('/')">Search</span>
-        <span>Calendar</span>
-        <span>Favorites</span>
+        <router-link to="/">Home</router-link>
+        <router-link to="/favorites">Favorites</router-link>
+        <button class="signin-btn">Sign in</button>
       </div>
     </nav>
 
@@ -135,17 +139,37 @@ onMounted(async () => {
 
 <style scoped>
 .back-btn {
-  background: none;
-  border: none;
-  color: var(--dusty-rosewood);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0;
-  font-family: inherit;
-}
-.back-btn:hover {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  background: white;
+  border: 1.5px solid var(--warm-beige);
   color: var(--deep-rosewood);
-  text-decoration: underline;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.back-btn:hover {
+  background: var(--soft-blush);
+  border-color: var(--dusty-rosewood);
+  transform: translateY(-1px);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+}
+
+.back-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(117, 55, 66, 0.18);
 }
 
 .recipe-loading {
@@ -328,5 +352,59 @@ onMounted(async () => {
   .recipe-body {
     grid-template-columns: 1fr;
   }
+}
+
+.navbar {
+  background: #5a3434;
+  color: #fff;
+  padding: 1.2rem 1.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-icon {
+  font-size: 1.4rem;
+}
+
+.brand-text {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signin-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: transparent;
+  color: white;
+  border: 1.5px solid #d9b7ac;
+}
+
+.signin-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 </style>

@@ -7,9 +7,7 @@
       </div>
 
       <nav class="nav-links">
-        <a href="#">Search</a>
-        <a href="#">Calendar</a>
-        
+        <router-link to="/">Home</router-link>
         <router-link to="/favorites">Favorites</router-link>
 
         <template v-if="authUser">
