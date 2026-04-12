@@ -98,6 +98,31 @@
         </div>
       </template>
     </div>
+    
+    <button class="theme-toggle" @click="toggleTheme">
+      <span v-if="isDark">
+        <!-- REAL SUN ICON -->
+        <svg viewBox="0 0 24 24" class="icon">
+          <circle cx="12" cy="12" r="5" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="1" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="23"/>
+            <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
+            <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
+            <line x1="1" y1="12" x2="4" y2="12"/>
+            <line x1="20" y1="12" x2="23" y2="12"/>
+            <line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/>
+            <line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/>
+          </g>
+        </svg>
+      </span>
+      <span v-else>
+        <!-- Moon -->
+        <svg viewBox="0 0 24 24" class="icon">
+          <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
+        </svg>
+      </span>
+    </button>
   </div>
 </template>
 
@@ -133,8 +158,39 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+
   await loadFavorites()
+
+  // 🌙 DARK MODE LOAD (THIS IS THE ONLY ADDITION)
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDark.value = true
+    document.body.classList.add('dark')
+  }
 })
+
+const isDark = ref(false)
+
+function toggleTheme() {
+  isDark.value = !isDark.value
+
+  if (isDark.value) {
+    document.body.classList.add('dark')
+  } else {
+    document.body.classList.remove('dark')
+  }
+
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDark.value = true
+    document.body.classList.add('dark')
+  }
+})
+
 </script>
 
 <style scoped>
@@ -406,5 +462,36 @@ onMounted(async () => {
 
 .signin-btn:hover {
   background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== DARK MODE ===== */
+
+body.dark .app {
+  background: #121212;
+  color: #EAEAEA;
+}
+
+body.dark .recipe-hero,
+body.dark .recipe-section {
+  background: #1E1E1E;
+  color: #EAEAEA;
+}
+
+body.dark .recipe-summary {
+  color: #CCCCCC;
+}
+
+body.dark .step-number {
+  background: #444;
+}
+
+body.dark .back-btn {
+  background: #2A2A2A;
+  color: #EAEAEA;
+  border-color: #555;
+}
+
+body.dark .navbar {
+  background: #1E1E1E;
 }
 </style>

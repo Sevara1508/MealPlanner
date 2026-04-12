@@ -34,7 +34,17 @@
                   required
                 />
                 <button type="button" class="toggle-pw" @click="showPassword = !showPassword">
-                  {{ showPassword ? '🙈' : '👁️' }}
+                  <svg v-if="showPassword" viewBox="0 0 24 24" class="eye-icon">
+                    <!-- closed eye -->
+                    <path d="M3 12s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path d="M4 4l16 16" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+
+                  <svg v-else viewBox="0 0 24 24" class="eye-icon">
+                    <!-- open eye -->
+                    <path d="M3 12s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -231,4 +241,79 @@ input::placeholder { color: #D3AB9E; }
 .modal-fade-enter-from .modal { transform: scale(0.95) translateY(10px); }
 .slide-down-enter-active, .slide-down-leave-active { transition: all 0.2s ease; }
 .slide-down-enter-from, .slide-down-leave-to { opacity: 0; transform: translateY(-6px); }
+
+/* ===== DARK MODE (AUTH MODAL FIX) ===== */
+
+body.dark .overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body.dark .modal {
+  background: #1E1E1E;
+  border: 1px solid #333;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+body.dark h2 {
+  color: #EAEAEA;
+}
+
+body.dark .subtitle {
+  color: #BBBBBB;
+}
+
+body.dark label {
+  color: #CCCCCC;
+}
+
+body.dark input {
+  background: #2A2A2A;
+  color: #EAEAEA;
+  border-color: #555;
+}
+
+body.dark input::placeholder {
+  color: #888;
+}
+
+body.dark .close-btn {
+  background: #2A2A2A;
+  color: #EAEAEA;
+}
+
+body.dark .close-btn:hover {
+  background: #444;
+}
+
+body.dark .submit-btn {
+  background: #2A2A2A;
+  color: #EAEAEA;
+}
+
+body.dark .submit-btn:hover {
+  background: #444;
+}
+
+body.dark .switch-text {
+  color: #BBBBBB;
+}
+
+body.dark .switch-btn {
+  color: #EAEAEA;
+}
+
+body.dark .error-banner {
+  background: #5a2a2a;
+  color: #EAEAEA;
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  color: #4F3130;
+}
+
+body.dark .eye-icon {
+  color: #EAEAEA;
+}
 </style>

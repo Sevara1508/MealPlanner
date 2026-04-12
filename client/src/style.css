@@ -164,3 +164,43 @@ html, body, #app {
   justify-content: center;
   color: var(--dusty-rosewood);
 }
+
+/* ===== DARK MODE TEXT FIX ===== */
+
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark p,
+body.dark span,
+body.dark li {
+  color: #EAEAEA !important;
+}
+
+/* softer secondary text */
+body.dark .recipe-summary,
+body.dark .nutrition-label,
+body.dark .ingredient-amount {
+  color: #BBBBBB !important;
+}
+
+/* fix chips (those little pills) */
+body.dark .stat-chip {
+  background: #2A2A2A;
+  color: #EAEAEA;
+}
+
+/* fix numbers (like calories/protein) */
+body.dark .nutrition-value {
+  color: #FFFFFF;
+}
+
+/* fix ingredient list lines */
+body.dark .ingredient-item {
+  border-bottom: 1px solid #333;
+}
+
+/* fix step numbers */
+body.dark .step-number {
+  background: #444;
+}
