@@ -44,9 +44,17 @@
           <img :src="recipe.image" alt="recipe" />
           <div class="card-content">
             <h2>{{ recipe.title }}</h2>
-            <button class="unsave-btn" @click.stop="removeFavorite(recipe.recipe_id)">
-              <Bookmark :fill="'#5a3434'" :size="16" />
-              Unsave
+            <button
+              class="heart-btn"
+              :class="{ popping: recipe._popping }"
+              @click.stop="handleUnfavorite(recipe.recipe_id, recipe)"
+            >
+              <Heart
+                :key="recipe.recipe_id"
+                fill="#e74c3c"
+                stroke="#e74c3c"
+                :size="18"
+              />
             </button>
           </div>
         </div>
@@ -88,7 +96,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { Bookmark } from 'lucide-vue-next'
+import { Heart } from 'lucide-vue-next'
 import { useAuth } from '../composables/useAuth'
 import { useFavorites } from '../composables/useFavorites'
 import AuthModal from '../components/AuthModal.vue'
@@ -99,6 +107,16 @@ const authUser = computed(() => user.value)
 const showAuthModal = ref(false)
 
 const { favorites, loadFavorites, removeFavorite } = useFavorites()
+
+function handleUnfavorite(recipeId, recipe) {
+  removeFavorite(recipeId)
+
+  recipe._popping = true
+
+  setTimeout(() => {
+    recipe._popping = false
+  }, 400)
+}
 
 async function handleLogout() {
   await logout()
@@ -234,6 +252,7 @@ function toggleTheme() {
 }
 
 .card {
+  position: relative;
   background: white;
   border-radius: 16px;
   overflow: hidden;
@@ -384,4 +403,37 @@ body.dark .back-btn {
 body.dark .navbar {
   background: #1E1E1E;
 }
+
+.heart-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  background: white;
+  border: none;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 10;
+
+  transition: transform 0.15s ease;
+}
+
+.heart-btn:hover {
+  transform: scale(1.1);
+}
+
+.heart-btn.popping {
+  animation: heartPop 0.4s ease;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
 </style>

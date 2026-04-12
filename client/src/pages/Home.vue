@@ -22,8 +22,8 @@
     </header>
 
     <main class="content">
-      <section class="search-section">
-        <h2>Find Recipes</h2>
+      <section class="discover-section">
+        <h2>Trending Recipes</h2>
 
         <div class="search-bar">
           <input
@@ -79,48 +79,25 @@
             v-for="recipe in filteredRecipes"
             :key="recipe.id"
             class="recipe-card"
-            draggable="true"
-            @dragstart="dragStart(recipe)"
             @click="$router.push(`/recipe/${recipe.id}`)"
           >
+            <!-- HEART BUTTON -->
+            <button
+              class="heart-btn"
+              :class="{ popping: recipe._popping }"
+              @click.stop="handleFavorite(recipe)"
+            >
+            <Heart
+              :key="recipe.id + '-' + isFavorited(recipe.id)"
+              :fill="isFavorited(recipe.id) ? '#e74c3c' : 'none'"
+              :stroke="isFavorited(recipe.id) ? '#e74c3c' : '#555'"
+              :size="20"
+            />
+            </button>
             <img :src="recipe.image" :alt="recipe.title" />
             <p>{{ recipe.title }}</p>
           </div>
         </div>
-      </section>
-
-      <section class="weekly-plan">
-        <h2>Weekly Plan</h2>
-
-        <div class="days-grid">
-          <div
-            v-for="day in days"
-            :key="day"
-            class="day-card"
-            @dragover.prevent
-            @drop="dropMeal(day)"
-          >
-            <h3>{{ day }}</h3>
-
-            <div class="drop-zone">
-              <template v-if="mealPlan[day]">
-                <div class="planned-meal">
-                  <img :src="mealPlan[day].image" :alt="mealPlan[day].title" />
-                  <p>{{ mealPlan[day].title }}</p>
-                </div>
-              </template>
-
-              <template v-else>
-                <span>Drop meals</span>
-              </template>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="nutrition-section">
-        <h2>Nutrition Overview</h2>
-        <NutritionCharts :mealPlan="mealPlan" />
       </section>
     </main>
 
@@ -158,7 +135,6 @@
 </template>
 
 <script setup>
-import NutritionCharts from '../components/NutritionCharts.vue'
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
@@ -171,19 +147,6 @@ const authUser = computed(() => user.value)
 const showAuthModal = ref(false)
 const searchQuery = ref('')
 const recipes = ref([])
-const draggedRecipe = ref(null)
-
-const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-const mealPlan = ref({
-  Mon: null,
-  Tue: null,
-  Wed: null,
-  Thu: null,
-  Fri: null,
-  Sat: null,
-  Sun: null,
-})
 
 const filters = ref({
   vegetarian: false,
@@ -235,6 +198,11 @@ const filteredRecipes = computed(() => {
   })
 })
 
+import { Heart } from 'lucide-vue-next'
+import { useFavorites } from '../composables/useFavorites'
+
+const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
+
 const isDark = ref(false)
 
 function toggleTheme() {
@@ -264,33 +232,15 @@ async function searchRecipes() {
   }
 }
 
-function dragStart(recipe) {
-  draggedRecipe.value = recipe
-}
+function handleFavorite(recipe) {
+  toggleFavorite(recipe)
 
-async function dropMeal(day) {
-  if (!draggedRecipe.value) return
+  // trigger animation
+  recipe._popping = true
 
-  try {
-    const res = await axios.get(`http://localhost:3001/api/recipes/${draggedRecipe.value.id}`, {
-      params: { includeNutrition: true },
-      withCredentials: true,
-    })
-
-    const nutrients = res.data.nutrition?.nutrients || []
-    const get = (name) => Math.round(nutrients.find(n => n.name === name)?.amount ?? 0)
-
-    mealPlan.value[day] = {
-      ...draggedRecipe.value,
-      calories: get('Calories'),
-      protein: get('Protein'),
-      carbs: get('Carbohydrates'),
-      fat: get('Fat'),
-    }
-  } catch (err) {
-    console.error('Failed to fetch nutrition on drop:', err)
-    mealPlan.value[day] = draggedRecipe.value // fallback without nutrition
-  }
+  setTimeout(() => {
+    recipe._popping = false
+  }, 400)
 }
 
 async function handleLogout() {
@@ -303,11 +253,30 @@ function onAuthSuccess() {
 
 onMounted(async () => {
   await fetchUser()
+  await loadFavorites()
 
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme === 'dark') {
     isDark.value = true
     document.body.classList.add('dark')
+  }
+
+  try {
+    const queries = ['chicken', 'pasta', 'salad']
+    let allRecipes = []
+
+    for (const q of queries) {
+      const res = await axios.get('http://localhost:3001/api/recipes/search', {
+        params: { query: q},
+        withCredentials: true,
+      })
+
+      allRecipes = [...allRecipes, ...(res.data.results || [])]
+    }
+
+    recipes.value = allRecipes.slice(0, 12) // limit to 12 cards
+  } catch (err) {
+    console.error('Trending load error:', err)
   }
 })
 </script>
@@ -696,6 +665,67 @@ body.dark .signin-btn {
     color 0.4s ease,
     border-color 0.4s ease,
     box-shadow 0.4s ease;
+}
+
+.recipe-card {
+  position: relative;
+}
+
+.heart-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+.heart-btn:hover {
+  transform: scale(1.1);
+}
+
+/* HEART POP ANIMATION */
+.heart-btn {
+  transition: transform 0.15s ease;
+}
+
+/* when clicked */
+.heart-btn.popping {
+  animation: heartPop 0.4s ease;
+}
+
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.4);
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.heart-btn.popping {
+  animation: heartPop 0.4s ease;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.heart-btn.popping svg {
+  filter: drop-shadow(0 0 6px rgba(231, 76, 60, 0.6));
 }
 
 </style>

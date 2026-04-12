@@ -40,10 +40,18 @@
               <div v-for="diet in recipe.diets?.slice(0,2)" :key="diet" class="stat-chip">🌿 {{ diet }}</div>
             </div>
 
-            <!-- FAVORITE BUTTON -->
-            <button class="fav-btn" @click="toggleFavorite(recipe)">
-              <Bookmark :fill="isFavorited(recipe.id) ? '#fff' : 'none'" :size="18" />
-              {{ isFavorited(recipe.id) ? 'Saved' : 'Save to Favorites' }}
+            <!-- HEART BUTTON (TOP RIGHT) -->
+            <button
+              class="heart-btn"
+              :class="{ popping: recipe._popping }"
+              @click.stop="handleFavorite(recipe)"
+            >
+              <Heart
+                :key="recipe.id + '-' + isFavorited(recipe.id)"
+                :fill="isFavorited(recipe.id) ? '#e74c3c' : 'none'"
+                :stroke="isFavorited(recipe.id) ? '#e74c3c' : '#555'"
+                :size="22"
+              />
             </button>
 
             <!-- ADD TO MEAL PLAN -->
@@ -155,7 +163,7 @@
 </template>
 
 <script setup>
-import { Bookmark } from 'lucide-vue-next'
+import { Heart } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFavorites } from '../composables/useFavorites'
@@ -186,6 +194,16 @@ function handleAdd() {
 }
 
 const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
+
+function handleFavorite(recipe) {
+  toggleFavorite(recipe)
+
+  recipe._popping = true
+
+  setTimeout(() => {
+    recipe._popping = false
+  }, 400)
+}
 
 const get = (name) => {
   const found = nutrition.value.find(n => n.name === name)
@@ -299,6 +317,7 @@ onMounted(() => {
 }
 
 .recipe-hero-info {
+  position: relative;
   padding: 1.5rem 1.5rem 1.5rem 0;
   display: flex;
   flex-direction: column;
@@ -546,8 +565,8 @@ body.dark .navbar {
 
 .planner-dropdown {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 60px;
   z-index: 200;
 }
 
@@ -609,4 +628,26 @@ body.dark .planner-btn,
 body.dark .confirm-btn {
   background: #2A2A2A;
 }
+
+.heart-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  background: white;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 10;
+
+  transition: transform 0.15s ease;
+}
+
+.heart-btn:hover {
+  transform: scale(1.1);
+}
+
 </style>
