@@ -1,4 +1,3 @@
-// Meal planner website - Home Page
 <template>
   <div class="page">
     <header class="navbar">
