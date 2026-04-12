@@ -11,6 +11,7 @@
       <div class="nav-links">
         <router-link to="/">Home</router-link>
         <router-link to="/favorites">Favorites</router-link>
+        <router-link to="/planner">Planner</router-link>
         <button class="signin-btn">Sign in</button>
       </div>
     </nav>
@@ -44,6 +45,33 @@
               <Bookmark :fill="isFavorited(recipe.id) ? '#fff' : 'none'" :size="18" />
               {{ isFavorited(recipe.id) ? 'Saved' : 'Save to Favorites' }}
             </button>
+
+            <!-- ADD TO MEAL PLAN -->
+            <div class="planner-dropdown">
+              <button class="planner-btn" @click="showPlanner = !showPlanner">
+                + Add to Meal Plan
+              </button>
+
+              <div v-if="showPlanner" class="dropdown">
+                <label>Day</label>
+                <select v-model="selectedDay">
+                  <option disabled value="">Select day</option>
+                  <option v-for="day in days" :key="day">{{ day }}</option>
+                </select>
+
+                <label>Meal</label>
+                <select v-model="selectedMeal">
+                  <option disabled value="">Select meal</option>
+                  <option>Breakfast</option>
+                  <option>Lunch</option>
+                  <option>Dinner</option>
+                </select>
+
+                <button class="confirm-btn" @click="handleAdd">
+                  Add
+                </button>
+              </div>
+            </div>
 
             <!-- NUTRITION -->
             <div v-if="nutrition.length" class="nutrition-summary">
@@ -138,6 +166,24 @@ const loading = ref(true)
 const error = ref(null)
 
 const nutrition = ref([])
+
+const showPlanner = ref(false)
+
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+
+const selectedDay = ref('')
+const selectedMeal = ref('')
+
+function handleAdd() {
+  if (!selectedDay.value || !selectedMeal.value) {
+    alert("Select day and meal first")
+    return
+  }
+
+  console.log("Added:", selectedDay.value, selectedMeal.value)
+
+  showPlanner.value = false
+}
 
 const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
 
@@ -236,6 +282,7 @@ onMounted(() => {
 }
 
 .recipe-hero {
+  position: relative;
   display: flex;
   gap: 2rem;
   background: white;
@@ -493,5 +540,73 @@ body.dark .back-btn {
 
 body.dark .navbar {
   background: #1E1E1E;
+}
+
+/* ===== MEAL PLANNER DROPDOWN ===== */
+
+.planner-dropdown {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 200;
+}
+
+.planner-btn {
+  background: #5a3434;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  left: auto;
+  background: white;
+  padding: 1rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 180px;
+  z-index: 100;
+}
+
+.dropdown select {
+  padding: 0.4rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.confirm-btn {
+  background: #5a3434;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem;
+  cursor: pointer;
+}
+
+/* DARK MODE */
+
+body.dark .dropdown {
+  background: #1E1E1E;
+  color: #EAEAEA;
+}
+
+body.dark .dropdown select {
+  background: #2A2A2A;
+  color: #EAEAEA;
+  border-color: #555;
+}
+
+body.dark .planner-btn,
+body.dark .confirm-btn {
+  background: #2A2A2A;
 }
 </style>

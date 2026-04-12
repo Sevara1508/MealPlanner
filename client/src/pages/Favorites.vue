@@ -9,6 +9,7 @@
       <nav class="nav-links">
         <router-link to="/">Home</router-link>
         <router-link to="/favorites">Favorites</router-link>
+        <router-link to="/planner">Planner</router-link>
 
         <template v-if="authUser">
           <button class="signout-btn" @click="handleLogout">Sign out</button>

@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../pages/Home.vue'
 import RecipePage from '../pages/RecipePage.vue'
 import Favorites from '../pages/Favorites.vue'
+import WeeklyPlanner from '../pages/WeeklyPlanner.vue'
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -9,6 +11,7 @@ const router = createRouter({
     { path: '/', component: Home },
     { path: '/recipe/:id', component: RecipePage },
     { path: '/favorites', component: Favorites },
+    {path: '/planner', component: WeeklyPlanner}, 
   ]
 })
 
