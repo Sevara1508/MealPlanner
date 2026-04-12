@@ -128,6 +128,31 @@
       @close="showAuthModal = false"
       @success="onAuthSuccess"
     />
+
+    <button class="theme-toggle" @click="toggleTheme">
+      <span v-if="isDark">
+        <!-- REAL SUN ICON -->
+        <svg viewBox="0 0 24 24" class="icon">
+          <circle cx="12" cy="12" r="5" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="1" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="23"/>
+            <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
+            <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
+            <line x1="1" y1="12" x2="4" y2="12"/>
+            <line x1="20" y1="12" x2="23" y2="12"/>
+            <line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/>
+            <line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/>
+          </g>
+        </svg>
+      </span>
+      <span v-else>
+        <!-- Moon -->
+        <svg viewBox="0 0 24 24" class="icon">
+          <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
+        </svg>
+      </span>
+    </button>
   </div>
 </template>
 
@@ -209,6 +234,20 @@ const filteredRecipes = computed(() => {
   })
 })
 
+const isDark = ref(false)
+
+function toggleTheme() {
+  isDark.value = !isDark.value
+
+  if (isDark.value) {
+    document.body.classList.add('dark')
+  } else {
+    document.body.classList.remove('dark')
+  }
+
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
+
 async function searchRecipes() {
   if (!searchQuery.value.trim()) return
 
@@ -263,10 +302,33 @@ function onAuthSuccess() {
 
 onMounted(async () => {
   await fetchUser()
+
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDark.value = true
+    document.body.classList.add('dark')
+  }
 })
 </script>
 
-<style scoped>
+<style>
+
+:root {
+  --deep-rosewood: #4F3130;
+  --dusty-rosewood: #753742;
+  --warm-beige: #D3AB9E;
+  --soft-blush: #EAC9C1;
+  --pale-blush: #EBD8D0;
+}
+
+body.dark {
+  --deep-rosewood: #2A2A2A;
+  --dusty-rosewood: #3A3A3A;
+  --warm-beige: #555;
+  --soft-blush: #2A2A2A;
+  --pale-blush: #121212;
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -535,4 +597,104 @@ onMounted(async () => {
     width: 100%;
   }
 }
+
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: none;
+  background: var(--dusty-rosewood);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 9999;
+  transition: all 0.3s ease;
+
+  padding: 0;             
+}
+
+.theme-toggle svg {
+  width: 24px;
+  height: 24px;
+
+  display: block;          
+  margin: auto;            
+
+  transform: translateY(1px); 
+}
+
+
+/* ================= DARK MODE ================= */
+
+body.dark .page {
+  background: #121212;
+  color: #EAEAEA;
+}
+
+body.dark .navbar {
+  background: #1E1E1E;
+}
+
+body.dark .search-section h2,
+body.dark .weekly-plan h2,
+body.dark .nutrition-section h2 {
+  color: #EAEAEA;
+}
+
+body.dark .recipe-card,
+body.dark .day-card,
+body.dark .nutrition-box {
+  background: #1E1E1E;
+  color: #EAEAEA;
+}
+
+body.dark .search-bar input {
+  background: #2A2A2A;
+  color: #EAEAEA;
+}
+
+body.dark .drop-zone {
+  background: #2A2A2A;
+  color: #EAEAEA;
+  border-color: #555;
+}
+
+body.dark .filters label {
+  color: #CCCCCC;
+}
+
+body.dark .filters input {
+  color: #EAEAEA;
+  border-color: #555;
+}
+
+body.dark .day-card h3 {
+  color: #BBBBBB;
+}
+
+body.dark .signout-btn {
+  background: #2A2A2A;
+  color: #EAEAEA;
+}
+
+body.dark .signin-btn {
+  border-color: #777;
+}
+
+* {
+  transition: 
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
 </style>
