@@ -1,0 +1,33 @@
+Bushrat Zahan (100919304):
+- Login/Logout Feature
+- Ratings and Comments Feature
+- Documentation: editing code comments
+
+Menhdi Patel (100915876):
+- Dark/Light Mode Feature
+- Made multiple animation features
+- Hover Effect throughout the site
+- Overall UI appearance: colours, format, icons, font, etc
+- Made the Weekly Planning Feature
+
+Nabiha Shah (100874544):
+- Designed Recipeek Logo
+- Recipe Page
+- D3 Chart Feature
+- Made Video Submission
+
+Selena Bradshaw (100919722):
+- Made the NavBar
+- Made the HomePage/Trending Feature
+- Updated Favourites Feature
+- Documentation: Readme files and txt files
+
+Sevara Omonova (100923669):
+- Spoonacular API
+- Created the Favourites Feature
+
+Sruthika Kunapalan (100928466):
+- Made the Filter Feature
+- Made Meal Planner Page
+- Updated D3 Chart Feature
+- Updated Homepage
