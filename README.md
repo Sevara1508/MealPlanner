@@ -1,10 +1,4 @@
 ![Recipeek Banner](Recipeek_Banner.png)
-<p align="center">
-  <img src="banner.png" alt="Recipeek Banner" width="100%" />
-</p>
-
-<h1 align="center">Recipeek</h1>
-<p align="center"><i>Plan recipes, meals, and more.</i></p>
 
 ---
 
