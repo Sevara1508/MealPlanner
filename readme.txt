@@ -1,22 +1,29 @@
-MealPlanner Web App
+## How To Run
 
-How to run the project:
+### Installations
+- Node.js
+- npm
 
-1. Download or clone the repository.
-2. Open the project folder.
-3. Open a terminal.
-4. Go into the client folder and install dependencies:
-   npm install
-5. Start the client:
-   npm run dev
-6. Open another terminal.
-7. Go into the server folder and install dependencies:
-   npm install
-8. Start the server:
-   node server.js
-9. Open the local URL shown in the terminal to use the web app.
+### Set-up
+1) Clone the repository
+2) Open the project folder
+3) Open the terminal and move into the client folder
+4) Install client dependencies
+```bash
+npm install
+```
+5) Start the client
+```bash
+npm run dev
+```
+6) Open a secondary terminal and move into the server folder
+7) Install server dependencies
+```bash
+npm install
+```
+8) Start the server
+```bash
+node server.js
+```
+9) Open the local host link shown in the terminal
 
-Requirements:
-- Node.js installed
-- npm installed
-- Internet connection may be required for API features
