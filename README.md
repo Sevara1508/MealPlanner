@@ -1,4 +1,4 @@
-
+![Recipeek Banner](Recipeek_Banner.png)
 <p align="center">
   <img src="banner.png" alt="Recipeek Banner" width="100%" />
 </p>
