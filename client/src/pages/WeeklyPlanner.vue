@@ -26,6 +26,7 @@
     </header>
 
     <div class="container">
+      <button class="back-btn" @click="$router.back()">← Back</button>
       <h1 class="title">Weekly Meal Planner</h1>
 
       <div class="layout">
@@ -40,10 +41,14 @@
           </div>
 
           <!-- ROWS -->
-          <template v-for="day in days" :key="day">
-
+          <div class="day-row" v-for="day in days" :key="day">
+          
             <!-- DAY LABEL -->
-            <div class="day-label" @click.stop="selectDay(day)">
+            <div 
+              class="day-label"
+              :class="{ active: selectedDay === day }"
+              @click.stop="selectDay(day)"
+            >
               {{ day }}
             </div>
 
@@ -65,7 +70,7 @@
 
               <div v-else class="slot">—</div>
             </div>
-          </template>
+          </div>
         </div>
 
         <!-- RIGHT: MACROS -->
@@ -105,35 +110,32 @@
       </div>
     </div>
     <button class="theme-toggle" @click="toggleTheme">
-    <span v-if="isDark">
-      <!-- Sun -->
-      <svg viewBox="0 0 24 24" class="icon">
-        <circle cx="12" cy="12" r="5" />
-        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="12" y1="1" x2="12" y2="4"/>
-          <line x1="12" y1="20" x2="12" y2="23"/>
-          <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
-          <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
-          <line x1="1" y1="12" x2="4" y2="12"/>
-          <line x1="20" y1="12" x2="23" y2="12"/>
-        </g>
-      </svg>
-    </span>
-
-    <span v-else>
-      <!-- Moon -->
-      <svg viewBox="0 0 24 24" class="icon">
-        <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
-      </svg>
-    </span>
-  </button>
+      <span v-if="isDark">
+        <!-- REAL SUN ICON -->
+        <svg viewBox="0 0 24 24" class="icon">
+          <circle cx="12" cy="12" r="5" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="1" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="23"/>
+            <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
+            <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
+            <line x1="1" y1="12" x2="4" y2="12"/>
+            <line x1="20" y1="12" x2="23" y2="12"/>
+            <line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/>
+            <line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/>
+          </g>
+        </svg>
+      </span>
+      <span v-else>
+        <!-- Moon -->
+        <svg viewBox="0 0 24 24" class="icon">
+          <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
+        </svg>
+      </span>
+    </button>
   </div>
-  <AuthModal
-  :show="showAuthModal"
-  @close="showAuthModal = false"
-  @success="onAuthSuccess"
-/>
 </template>
+
 
 <script setup>
 import { ref, computed } from 'vue'
@@ -386,8 +388,57 @@ const macroTitle = computed(() => {
 
   padding: 0.5rem;
   border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
+/* HOVER ANIMATION */
+.day-label:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: #e0bfb6;
+}
+
+/* ACTIVE (CLICKED DAY) */
+.day-label.active {
+  background: #753742;
+  color: #4F3130;
+  transform: scale(1.05);
+}
+
+/* BACK BUTTON */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  align-self: flex-start;
+  background: white;
+  border: 1.5px solid var(--warm-beige);
+  color: var(--deep-rosewood);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.back-btn:hover {
+  background: var(--soft-blush);
+  border-color: var(--dusty-rosewood);
+  transform: translateY(-1px);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+}
+
+.back-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(117, 55, 66, 0.18);
+}
 
 /* CELLS */
 .cell {
@@ -398,6 +449,9 @@ const macroTitle = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
   transition: transform 0.15s ease;
 }
 
@@ -426,6 +480,11 @@ const macroTitle = computed(() => {
   text-align: center;
 }
 
+.meal img,
+.meal p {
+  pointer-events: none;
+}
+
 /* ===== MACROS ===== */
 .macro-box {
   background: white;
@@ -442,6 +501,22 @@ const macroTitle = computed(() => {
   margin-top: 1rem;
 }
 
+/* CLICKED CELL */
+.cell.active {
+  border: 2px solid #753742;
+  box-shadow: 0 0 0 2px rgba(117, 55, 66, 0.2);
+  transform: scale(1.02);
+}
+
+.meal {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 /* ===== DARK MODE ===== */
 body.dark .planner-page {
   background: #121212;
@@ -455,6 +530,36 @@ body.dark .macro-box {
 
 body.dark .slot {
   background: #2A2A2A;
+}
+
+body.dark .day-label {
+  color: #EAEAEA;
+}
+
+body.dark .day-label:hover {
+  background: #2A2A2A;
+}
+
+body.dark .day-label.active {
+  background: #753742;
+  color: white;
+}
+
+body.dark .cell.active {
+  border: 2px solid #EAC9C1;
+  box-shadow: 0 0 0 2px rgba(234, 201, 193, 0.2);
+}
+
+body.dark .back-btn {
+  background: #2A2A2A;
+  color: #EAEAEA;
+  border-color: #555;
+}
+
+body.dark .back-btn:hover {
+  background: #753742;  /* your accent color */
+  color: white;
+  border-color: #753742;
 }
 
 /* ===== MOBILE ===== */
@@ -479,9 +584,28 @@ body.dark .slot {
   content: "";
   position: absolute;
   left: -10px;
-  right: calc(-400% - 0.6rem * 4); /* stretches across all 4 meal cells */
+  right: -910px; /* stretches across all 4 meal cells */
   top: -6px;
   bottom: -6px;
+  background: #f7ece7;
+  border: 2px solid #e0bfb6;
+  border-radius: 14px;
+  z-index: -1;
+}
+
+.day-label::before,
+.day-row::before {
+  pointer-events: none;
+}
+
+.day-row {
+  display: contents; /* keeps grid layout intact */
+}
+
+.day-row::before {
+  content: "";
+  grid-column: 1 / -1; /* spans FULL row */
+  height: 100%;
   background: #f7ece7;
   border: 2px solid #e0bfb6;
   border-radius: 14px;
@@ -561,6 +685,10 @@ body.dark .slot {
   display: block;
 }
 
+body.dark .theme-toggle {
+  background: #2a2a2a; /* dark gray to match your dark UI */
+}
+
 body.dark .planner-page {
   background: #121212;
   color: #EAEAEA;
@@ -584,4 +712,8 @@ body.dark .navbar {
   background: #1E1E1E;
 }
 
+body.dark .day-row::before {
+  background: #1a1a1a;
+  border-color: #333;
+}
 </style>

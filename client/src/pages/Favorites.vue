@@ -400,6 +400,12 @@ body.dark .back-btn {
   border-color: #555;
 }
 
+body.dark .back-btn:hover {
+  background: #753742;  /* your accent color */
+  color: white;
+  border-color: #753742;
+}
+
 body.dark .navbar {
   background: #1E1E1E;
 }
