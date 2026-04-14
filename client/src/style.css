@@ -204,3 +204,9 @@ body.dark .ingredient-item {
 body.dark .step-number {
   background: #444;
 }
+
+.brand-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}

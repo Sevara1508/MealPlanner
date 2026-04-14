@@ -4,8 +4,7 @@
     <!-- NAVBAR -->
     <nav class="navbar">
       <div class="brand">
-        <span class="brand-icon">🍽</span>
-        <span class="brand-text">Meal Planner</span>
+        <img :src="logo" alt="Meal Planner" class="brand-logo" />
       </div>
 
       <div class="nav-links">
@@ -168,6 +167,7 @@ import { Heart } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFavorites } from '../composables/useFavorites'
+import logo from '../assets/ReciPeekLogo.png'
 
 const route = useRoute()
 const recipe = ref(null)
@@ -516,16 +516,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.brand-icon {
-  font-size: 1.4rem;
-}
-
-.brand-text {
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
 }
 
 .nav-links {

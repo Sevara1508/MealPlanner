@@ -3,8 +3,7 @@
     <!-- NAVBAR -->
     <header class="navbar">
       <div class="brand">
-        <span class="brand-icon">🍽</span>
-        <span class="brand-text">Meal Planner</span>
+        <img :src="logo" alt="Meal Planner" class="brand-logo" />
       </div>
 
       <nav class="nav-links">
@@ -143,6 +142,7 @@ import * as d3 from 'd3'
 import { watch, nextTick } from 'vue'
 import AuthModal from '../components/AuthModal.vue'
 import { useAuth } from '../composables/useAuth'
+import logo from '../assets/ReciPeekLogo.png'
 
 const { user, fetchUser, logout } = useAuth()
 

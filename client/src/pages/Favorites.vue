@@ -2,8 +2,7 @@
   <div class="favorites-page">
     <header class="navbar">
       <div class="brand">
-        <span class="brand-icon">🍽</span>
-        <span class="brand-text">Meal Planner</span>
+        <img :src="logo" alt="Meal Planner" class="brand-logo" />
       </div>
 
       <nav class="nav-links">
@@ -98,6 +97,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { Heart } from 'lucide-vue-next'
 import { useAuth } from '../composables/useAuth'
+import logo from '../assets/ReciPeekLogo.png'
 import { useFavorites } from '../composables/useFavorites'
 import AuthModal from '../components/AuthModal.vue'
 
@@ -178,16 +178,6 @@ function toggleTheme() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.brand-icon {
-  font-size: 1.4rem;
-}
-
-.brand-text {
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
 }
 
 .nav-links {

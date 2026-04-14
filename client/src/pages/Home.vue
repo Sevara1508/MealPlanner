@@ -2,8 +2,7 @@
   <div class="page">
     <header class="navbar">
       <div class="brand">
-        <span class="brand-icon">🍽</span>
-        <span class="brand-text">Meal Planner</span>
+        <img :src="logo" alt="Meal Planner" class="brand-logo" />
       </div>
 
       <nav class="nav-links">
@@ -139,6 +138,7 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
 import AuthModal from '../components/AuthModal.vue'
+import logo from '../assets/ReciPeekLogo.png'
 
 const { user, fetchUser, logout } = useAuth()
 
@@ -351,10 +351,6 @@ body.dark {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.brand-icon {
-  font-size: 1.4rem;
 }
 
 .brand-text {
