@@ -1,6 +1,6 @@
 Bushrat Zahan (100919304):
 - Login/Logout Feature
-- Ratings and Comments Feature
+- Ratings and Reviews Feature
 - Documentation: editing code comments
 
 Menhdi Patel (100915876):
