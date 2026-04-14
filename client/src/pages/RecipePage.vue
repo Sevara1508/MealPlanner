@@ -505,7 +505,7 @@ onMounted(async () => {
 
 .ingredient-item { display: flex; gap: 10px; font-size: 0.9rem; border-bottom: 1px solid var(--pale-blush); padding-bottom: 8px; }
 
-.ingredient-amount { color: var(--dusty-rosewood); font-weight: 600; min-width: 70px; }
+.ingredient-amount { color: var(--dusty-rosewood); font-weight: 600; }
 
 .steps-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
 
