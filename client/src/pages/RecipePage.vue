@@ -73,6 +73,7 @@
                   <option>Breakfast</option>
                   <option>Lunch</option>
                   <option>Dinner</option>
+                  <option>Snack</option>
                 </select>
 
                 <button class="confirm-btn" @click="handleAdd">
@@ -188,7 +189,33 @@ function handleAdd() {
     return
   }
 
-  console.log("Added:", selectedDay.value, selectedMeal.value)
+  const nutrients = nutrition.value || []
+
+  const getVal = (name) =>
+    Math.round(nutrients.find(n => n.name === name)?.amount ?? 0)
+
+  const meal = {
+    ...recipe.value,
+    calories: getVal('Calories'),
+    protein: getVal('Protein'),
+    carbs: getVal('Carbohydrates'),
+    fat: getVal('Fat'),
+  }
+
+  // get existing plan OR create fresh
+  const plan = JSON.parse(localStorage.getItem('mealPlan')) || {
+    Mon: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Tue: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Wed: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Thu: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Fri: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Sat: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Sun: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  }
+
+  plan[selectedDay.value][selectedMeal.value] = meal
+
+  localStorage.setItem('mealPlan', JSON.stringify(plan))
 
   showPlanner.value = false
 }

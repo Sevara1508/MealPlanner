@@ -1,56 +1,335 @@
-```vue
 <template>
-  <div class="planner-page">
-
+  <div class="planner-page" @click="resetSelection">
     <!-- NAVBAR -->
-    <nav class="navbar">
+    <header class="navbar">
       <div class="brand">
         <span class="brand-icon">🍽</span>
         <span class="brand-text">Meal Planner</span>
       </div>
 
-      <div class="nav-links">
+      <nav class="nav-links">
         <router-link to="/">Home</router-link>
         <router-link to="/favorites">Favorites</router-link>
         <router-link to="/planner">Planner</router-link>
-      </div>
-    </nav>
+
+        <!-- AUTH BUTTONS -->
+        <template v-if="authUser">
+          <button class="signout-btn" @click="handleLogout">
+            Sign out
+          </button>
+        </template>
+
+        <button v-else class="signin-btn" @click="showAuthModal = true">
+          Sign in
+        </button>
+      </nav>
+    </header>
 
     <div class="container">
       <h1 class="title">Weekly Meal Planner</h1>
 
-      <div class="planner-grid">
-        <div v-for="day in days" :key="day" class="planner-day">
-          <h2>{{ day }}</h2>
+      <div class="layout">
 
-          <div class="meal-slot">
-            <span>Breakfast</span>
-            <div class="slot">—</div>
+        <!-- LEFT: WEEK GRID -->
+        <div class="planner-grid">
+
+          <!-- HEADER ROW -->
+          <div class="header empty"></div>
+          <div class="header" v-for="meal in mealTypes" :key="meal">
+            {{ meal }}
           </div>
 
-          <div class="meal-slot">
-            <span>Lunch</span>
-            <div class="slot">—</div>
-          </div>
+          <!-- ROWS -->
+          <template v-for="day in days" :key="day">
 
-          <div class="meal-slot">
-            <span>Dinner</span>
-            <div class="slot">—</div>
+            <!-- DAY LABEL -->
+            <div class="day-label" @click.stop="selectDay(day)">
+              {{ day }}
+            </div>
+
+            <!-- MEAL CELLS -->
+            <div
+              v-for="meal in mealTypes"
+              :key="day + meal"
+              class="cell"
+            >
+
+              <div
+                v-if="mealPlan[day][meal]"
+                class="meal"
+                @click.stop="selectRecipe(mealPlan[day][meal])"
+              >
+                <img :src="mealPlan[day][meal].image" />
+                <p>{{ mealPlan[day][meal].title }}</p>
+              </div>
+
+              <div v-else class="slot">—</div>
+            </div>
+          </template>
+        </div>
+
+        <!-- RIGHT: MACROS -->
+        <div class="macro-box">
+          <h2>{{ macroTitle }}</h2>
+
+          <div ref="chartRef" style="margin-top: 20px;"></div>
+
+          <div class="macro">
+
+            <div class="macro-row">
+              <span class="dot" :style="{ background: color('Calories') }"></span>
+              <span>Calories</span>
+              <strong>{{ macros.calories }}</strong>
+            </div>
+
+            <div class="macro-row">
+              <span class="dot" :style="{ background: color('Protein') }"></span>
+              <span>Protein</span>
+              <strong>{{ macros.protein }}g</strong>
+            </div>
+
+            <div class="macro-row">
+              <span class="dot" :style="{ background: color('Carbs') }"></span>
+              <span>Carbs</span>
+              <strong>{{ macros.carbs }}g</strong>
+            </div>
+
+            <div class="macro-row">
+              <span class="dot" :style="{ background: color('Fat') }"></span>
+              <span>Fat</span>
+              <strong>{{ macros.fat }}g</strong>
+            </div>
+
           </div>
         </div>
       </div>
-
-      <!-- MACRO PLACEHOLDER -->
-      <div class="macro-box">
-        <h2>Weekly Nutrition Overview</h2>
-        <p>Macro chart coming soon...</p>
-      </div>
     </div>
+    <button class="theme-toggle" @click="toggleTheme">
+    <span v-if="isDark">
+      <!-- Sun -->
+      <svg viewBox="0 0 24 24" class="icon">
+        <circle cx="12" cy="12" r="5" />
+        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="1" x2="12" y2="4"/>
+          <line x1="12" y1="20" x2="12" y2="23"/>
+          <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
+          <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
+          <line x1="1" y1="12" x2="4" y2="12"/>
+          <line x1="20" y1="12" x2="23" y2="12"/>
+        </g>
+      </svg>
+    </span>
+
+    <span v-else>
+      <!-- Moon -->
+      <svg viewBox="0 0 24 24" class="icon">
+        <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
+      </svg>
+    </span>
+  </button>
   </div>
+  <AuthModal
+  :show="showAuthModal"
+  @close="showAuthModal = false"
+  @success="onAuthSuccess"
+/>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import * as d3 from 'd3'
+import { watch, nextTick } from 'vue'
+import AuthModal from '../components/AuthModal.vue'
+import { useAuth } from '../composables/useAuth'
+
+const { user, fetchUser, logout } = useAuth()
+
+const authUser = computed(() => user.value)
+
+const showAuthModal = ref(false)
+
+const chartRef = ref(null)
+
+const color = d3.scaleOrdinal()
+  .domain(['Calories', 'Protein', 'Carbs', 'Fat'])
+  .range(['#753742', '#4F3130', '#D3AB9E', '#EAC9C1'])
+
+function renderChart() {
+  if (!chartRef.value) return
+
+  const data = [
+    { name: 'Calories', value: macros.value.calories },
+    { name: 'Protein', value: macros.value.protein },
+    { name: 'Carbs', value: macros.value.carbs },
+    { name: 'Fat', value: macros.value.fat },
+  ]
+
+  d3.select(chartRef.value).selectAll('*').remove()
+
+  const width = 260
+  const height = 260
+  const radius = Math.min(width, height) / 2
+
+  const svg = d3.select(chartRef.value)
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .append('g')
+    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+
+  const pie = d3.pie().value(d => d.value)
+
+  const arc = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius - 10)
+
+  const arcs = svg.selectAll('arc')
+    .data(pie(data))
+    .enter()
+    .append('g')
+
+  arcs.append('path')
+    .attr('d', arc)
+    .attr('fill', d => color(d.data.name))
+    .style('stroke', '#fff')
+    .style('stroke-width', '2px')
+}
+
+const isDark = ref(false)
+
+function toggleTheme() {
+  isDark.value = !isDark.value
+
+  if (isDark.value) {
+    document.body.classList.add('dark')
+  } else {
+    document.body.classList.remove('dark')
+  }
+
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
+
 const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+const mealTypes = ['Breakfast','Lunch','Dinner','Snack']
+
+// UPDATED STRUCTURE
+const mealPlan = ref({
+  Mon: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  Tue: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  Wed: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  Thu: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  Fri: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  Sat: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  Sun: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+})
+
+const fullDayName = (short) => {
+  return {
+    Mon: "Monday",
+    Tue: "Tuesday",
+    Wed: "Wednesday",
+    Thu: "Thursday",
+    Fri: "Friday",
+    Sat: "Saturday",
+    Sun: "Sunday"
+  }[short]
+}
+
+import { onMounted } from 'vue'
+
+onMounted(async () => {
+  const saved = localStorage.getItem('mealPlan')
+  if (saved) {
+    mealPlan.value = JSON.parse(saved)
+  }
+
+  await fetchUser()
+
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDark.value = true
+    document.body.classList.add('dark')
+  }
+})
+
+async function handleLogout() {
+  await logout()
+}
+
+function onAuthSuccess() {
+  showAuthModal.value = false
+}
+
+const selectedDay = ref(null)
+const selectedRecipe = ref(null)
+
+// ===== SELECT LOGIC =====
+function selectDay(day) {
+  selectedDay.value = day
+  selectedRecipe.value = null
+}
+
+function selectRecipe(recipe) {
+  selectedRecipe.value = recipe
+  selectedDay.value = null
+}
+
+function resetSelection() {
+  selectedDay.value = null
+  selectedRecipe.value = null
+}
+
+// ===== MACRO CALCULATIONS =====
+const weeklyMacros = computed(() => {
+  const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 }
+
+  Object.values(mealPlan.value).forEach(day => {
+    Object.values(day).forEach(meal => {
+      if (!meal) return
+      totals.calories += meal.calories || 0
+      totals.protein += meal.protein || 0
+      totals.carbs += meal.carbs || 0
+      totals.fat += meal.fat || 0
+    })
+  })
+
+  return totals
+})
+
+const dayMacros = computed(() => {
+  if (!selectedDay.value) return null
+
+  const meals = mealPlan.value[selectedDay.value]
+  const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 }
+
+  Object.values(meals).forEach(meal => {
+    if (!meal) return
+    totals.calories += meal.calories || 0
+    totals.protein += meal.protein || 0
+    totals.carbs += meal.carbs || 0
+    totals.fat += meal.fat || 0
+  })
+
+  return totals
+})
+
+const macros = computed(() => {
+  if (selectedRecipe.value) return selectedRecipe.value
+  if (selectedDay.value) return dayMacros.value
+  return weeklyMacros.value
+})
+
+watch(macros, async () => {
+  await nextTick()
+  renderChart()
+})
+
+const macroTitle = computed(() => {
+  if (selectedRecipe.value) return selectedRecipe.value.title
+  if (selectedDay.value) return fullDayName(selectedDay.value)
+  return "Weekly Nutrition"
+})
+
 </script>
 
 <style scoped>
@@ -68,43 +347,102 @@ const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
   color: #4F3130;
 }
 
+/* ===== LAYOUT ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 2rem;
+}
+
+/* ===== TABLE GRID ===== */
 .planner-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 100px repeat(4, 1fr);
+  gap: 0.6rem;
 }
 
-.planner-day {
-  background: white;
-  border-radius: 16px;
-  padding: 1rem;
-}
-
-.meal-slot {
-  margin-top: 0.8rem;
-}
-
-.meal-slot span {
-  font-size: 0.85rem;
+/* HEADER */
+.header {
+  font-weight: 600;
+  text-align: center;
   color: #753742;
 }
 
-.slot {
-  margin-top: 0.3rem;
-  padding: 0.6rem;
-  background: #f7ece7;
-  border-radius: 10px;
+.empty {
+  background: transparent;
 }
 
+/* DAY LABEL */
+.day-label {
+  font-weight: 700;
+  color: #4F3130;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 0.5rem;
+  border-radius: 12px;
+}
+
+
+/* CELLS */
+.cell {
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  min-height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.cell:hover {
+  transform: translateY(-2px);
+}
+
+/* SLOT */
+.slot {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* MEAL */
+.meal img {
+  width: 100%;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.meal p {
+  font-size: 0.7rem;
+  margin-top: 0.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ===== MACROS ===== */
 .macro-box {
-  margin-top: 2rem;
   background: white;
   padding: 1.5rem;
   border-radius: 16px;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.macro {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
 }
 
 /* ===== DARK MODE ===== */
-
 body.dark .planner-page {
   background: #121212;
   color: #EAEAEA;
@@ -118,5 +456,132 @@ body.dark .macro-box {
 body.dark .slot {
   background: #2A2A2A;
 }
+
+/* ===== MOBILE ===== */
+@media (max-width: 1100px) {
+  .planner-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== DAY ROW BACKGROUND (FAKE BIG BOX) ===== */
+.day-label,
+.cell {
+  position: relative;
+}
+
+/* add background behind entire row */
+.day-label::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  right: calc(-400% - 0.6rem * 4); /* stretches across all 4 meal cells */
+  top: -6px;
+  bottom: -6px;
+  background: #f7ece7;
+  border: 2px solid #e0bfb6;
+  border-radius: 14px;
+  z-index: -1;
+}
+
+.meal-label {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 0.65rem;
+  color: #753742;
+  font-weight: 600;
+}
+
+.macro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.macro-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  gap: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.navbar {
+  background: #5a3434;
+  color: white;
+  padding: 1.2rem 1.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: none;
+  background: #753742;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 9999;
+}
+
+.theme-toggle svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+body.dark .planner-page {
+  background: #121212;
+  color: #EAEAEA;
+}
+
+body.dark .macro-box {
+  background: #1E1E1E;
+  color: #EAEAEA;
+}
+
+body.dark .cell {
+  background: #1E1E1E;
+}
+
+body.dark .day-label::before {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+body.dark .navbar {
+  background: #1E1E1E;
+}
+
 </style>
-```
