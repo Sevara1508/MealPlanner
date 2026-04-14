@@ -233,9 +233,13 @@ async function searchRecipes() {
 }
 
 function handleFavorite(recipe) {
+  if (!authUser.value) {
+    showAuthModal.value = true
+    return
+  }
+
   toggleFavorite(recipe)
 
-  // trigger animation
   recipe._popping = true
 
   setTimeout(() => {

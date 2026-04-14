@@ -11,7 +11,14 @@
         <router-link to="/">Home</router-link>
         <router-link to="/favorites">Favorites</router-link>
         <router-link to="/planner">Planner</router-link>
-        <button class="signin-btn">Sign in</button>
+
+        <template v-if="authUser">
+          <button class="signout-btn" @click="handleLogout">Sign out</button>
+        </template>
+
+        <button v-else class="signin-btn" @click="showAuthModal = true">
+          Sign in
+        </button>
       </div>
     </nav>
 
@@ -135,6 +142,11 @@
       </template>
     </div>
     
+    <AuthModal
+      :show="showAuthModal"
+      @close="showAuthModal = false"
+    />
+
     <button class="theme-toggle" @click="toggleTheme">
       <span v-if="isDark">
         <!-- REAL SUN ICON -->
@@ -164,11 +176,16 @@
 
 <script setup>
 import { Heart } from 'lucide-vue-next'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useAuth } from '../composables/useAuth'
+import AuthModal from '../components/AuthModal.vue'
 import { useRoute } from 'vue-router'
 import { useFavorites } from '../composables/useFavorites'
 import logo from '../assets/ReciPeekLogo.png'
 
+const { user, fetchUser, logout } = useAuth()
+const authUser = computed(() => user.value)
+const showAuthModal = ref(false)
 const route = useRoute()
 const recipe = ref(null)
 const loading = ref(true)
@@ -183,7 +200,18 @@ const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 const selectedDay = ref('')
 const selectedMeal = ref('')
 
+async function handleLogout() {
+  await logout()
+  await fetchUser() // forces UI update
+}
+
 function handleAdd() {
+  if (!authUser.value) {
+      showAuthModal.value = true
+      return
+  }
+
+
   if (!selectedDay.value || !selectedMeal.value) {
     alert("Select day and meal first")
     return
@@ -223,6 +251,11 @@ function handleAdd() {
 const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
 
 function handleFavorite(recipe) {
+  if (!authUser.value) {
+    showAuthModal.value = true
+    return
+  }
+
   toggleFavorite(recipe)
 
   recipe._popping = true
@@ -251,6 +284,7 @@ onMounted(async () => {
   }
 
   await loadFavorites()
+  await fetchUser()
 
   // 🌙 DARK MODE LOAD (THIS IS THE ONLY ADDITION)
   const savedTheme = localStorage.getItem('theme')
