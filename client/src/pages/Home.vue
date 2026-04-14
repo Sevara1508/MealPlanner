@@ -200,6 +200,8 @@ const filteredRecipes = computed(() => {
 
     // servings filter
     if (servingsFilter && servings < servingsFilter) return false
+
+    return true
   })
 })
 

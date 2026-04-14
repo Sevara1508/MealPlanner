@@ -573,6 +573,7 @@ body.dark .back-btn:hover {
   }
 }
 
+
 /* ===== DAY ROW BACKGROUND (FAKE BIG BOX) ===== */
 .day-label,
 .cell {
