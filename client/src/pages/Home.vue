@@ -58,7 +58,9 @@
             <label>Max Time (mins): </label>
             <input
               type="number"
+              min="0"
               v-model.number="filters.maxTime"
+              @input="sanitizeFilters"
               placeholder="e.g. 30"
             />
           </div>
@@ -67,7 +69,9 @@
             <label>Servings: </label>
             <input
               type="number"
+              min="1"
               v-model.number="filters.servings"
+              @input="sanitizeFilters"
               placeholder="e.g. 4"
             />
           </div>
@@ -171,6 +175,9 @@ const filteredRecipes = computed(() => {
     const time = recipe.readyInMinutes || 0
     const servings = recipe.servings || 0
 
+    const maxTime = Math.max(0, filters.value.maxTime || 0)
+    const servingsFilter = Math.max(0, filters.value.servings || 0)
+
     const ingredients = [
       ...(recipe.missedIngredients || []),
       ...(recipe.usedIngredients || []),
@@ -189,12 +196,10 @@ const filteredRecipes = computed(() => {
     if (filters.value.dairyFree && !isDairyFree) return false
 
     //time filter
-    if (filters.value.maxTime && time > filters.value.maxTime) return false
+    if (maxTime && time > maxTime) return false
 
     // servings filter
-    if (filters.value.servings && servings < filters.value.servings) return false
-
-    return true
+    if (servingsFilter && servings < servingsFilter) return false
   })
 })
 
@@ -245,6 +250,11 @@ function handleFavorite(recipe) {
   setTimeout(() => {
     recipe._popping = false
   }, 400)
+}
+
+function sanitizeFilters() {
+  if (filters.value.maxTime < 0) filters.value.maxTime = 0
+  if (filters.value.servings < 0) filters.value.servings = 0
 }
 
 async function handleLogout() {
@@ -345,7 +355,7 @@ body.dark {
 .navbar {
   background: #5a3434;
   color: #fff;
-  padding: 1.2rem 1.8rem;
+  padding: 0.6rem 1.8rem 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -355,6 +365,20 @@ body.dark {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  position: relative;
+  height: 60px;
+  margin-left: 10px;
+}
+
+.brand-logo {
+  height: 115px !important;   /* FORCE size */
+  width: auto;
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-25%);
+
+  z-index: 10;
 }
 
 .brand-text {
