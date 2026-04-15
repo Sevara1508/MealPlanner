@@ -4,8 +4,7 @@
     <!-- NAVBAR -->
     <nav class="navbar">
       <div class="brand">
-        <span class="brand-icon">🍽</span>
-        <span class="brand-text">Meal Planner</span>
+        <img :src="logo" alt="Meal Planner" class="brand-logo" />
       </div>
 
       <div class="nav-links">
@@ -16,7 +15,9 @@
         <template v-if="authUser">
           <button class="signout-btn" @click="handleLogout">Sign out</button>
         </template>
-        <button v-else class="signin-btn" @click="showAuthModal = true">Sign in</button>
+        <button v-else class="signin-btn" @click="showAuthModal = true">
+          Sign in
+        </button>
       </div>
     </nav>
 
@@ -256,11 +257,12 @@
 
 <script setup>
 import { Heart } from 'lucide-vue-next'
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, computed} from 'vue'
 import { useRoute } from 'vue-router'
 import { useFavorites } from '../composables/useFavorites'
 import { useAuth } from '../composables/useAuth'
 import AuthModal from '../components/AuthModal.vue'
+import logo from '../assets/ReciPeekLogo.png'
 
 const route = useRoute()
 const recipe = ref(null)
@@ -275,6 +277,7 @@ const showAuthModal = ref(false)
 
 async function handleLogout() {
   await logout()
+  await fetchUser()
 }
 
 async function onAuthSuccess() {
@@ -290,18 +293,86 @@ const selectedDay = ref('')
 const selectedMeal = ref('')
 
 function handleAdd() {
-  if (!selectedDay.value || !selectedMeal.value) {
-    alert("Select day and meal first")
+  if (!authUser.value) {
+    showAuthModal.value = true
     return
   }
-  console.log("Added:", selectedDay.value, selectedMeal.value)
+
+  if (!recipe.value) {
+    alert('Recipe is still loading')
+    return
+  }
+
+  if (!selectedDay.value || !selectedMeal.value) {
+    alert('Select day and meal first')
+    return
+  }
+
+  const nutrients = nutrition.value || []
+
+  const getVal = (name) =>
+    Math.round(nutrients.find((n) => n.name === name)?.amount ?? 0)
+
+  const meal = {
+    id: recipe.value.id,
+    title: recipe.value.title,
+    image: recipe.value.image,
+    readyInMinutes: recipe.value.readyInMinutes ?? 0,
+    servings: recipe.value.servings ?? 0,
+    calories: getVal('Calories'),
+    protein: getVal('Protein'),
+    carbs: getVal('Carbohydrates'),
+    fat: getVal('Fat'),
+  }
+
+  const emptyPlan = {
+    Mon: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Tue: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Wed: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Thu: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Fri: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Sat: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Sun: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+  }
+
+  let plan = emptyPlan
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('mealPlan'))
+    if (saved && typeof saved === 'object') {
+      plan = {
+        ...emptyPlan,
+        ...saved,
+        [selectedDay.value]: {
+          ...emptyPlan[selectedDay.value],
+          ...(saved[selectedDay.value] || {}),
+        },
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse mealPlan from localStorage:', e)
+  }
+
+  plan[selectedDay.value][selectedMeal.value] = meal
+
+  localStorage.setItem('mealPlan', JSON.stringify(plan))
+
   showPlanner.value = false
+  selectedDay.value = ''
+  selectedMeal.value = ''
+
+  alert('Added to meal plan!')
 }
 
 // ── Favorites ──
 const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
 
 function handleFavorite(recipe) {
+  if (!authUser.value) {
+    showAuthModal.value = true
+    return
+  }
+
   toggleFavorite(recipe)
   recipe._popping = true
   setTimeout(() => { recipe._popping = false }, 400)
