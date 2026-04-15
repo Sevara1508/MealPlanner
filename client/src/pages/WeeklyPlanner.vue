@@ -112,8 +112,11 @@
       <span v-if="isDark">
         <!-- REAL SUN ICON -->
         <svg viewBox="0 0 24 24" class="icon">
-          <circle cx="12" cy="12" r="5" />
-          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <!-- CENTER -->
+          <circle cx="12" cy="12" r="5" fill="#5A3434"/>
+
+          <!-- RAYS -->
+          <g stroke="#5A3434" stroke-width="2" stroke-linecap="round">
             <line x1="12" y1="1" x2="12" y2="4"/>
             <line x1="12" y1="20" x2="12" y2="23"/>
             <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
@@ -128,7 +131,10 @@
       <span v-else>
         <!-- Moon -->
         <svg viewBox="0 0 24 24" class="icon">
-          <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
+          <path
+            d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"
+            fill="currentColor"
+          />
         </svg>
       </span>
     </button>
@@ -686,8 +692,16 @@ body.dark .back-btn:hover {
   display: block;
 }
 
+/* 🌙 LIGHT MODE (moon showing) */
+body:not(.dark) .theme-toggle {
+  background: #5A3434;   /* dark rosewood */
+  color: #F4E6D8;        /* soft cream moon */
+}
+
+/* DARK MODE (sun button) */
 body.dark .theme-toggle {
-  background: #2a2a2a; /* dark gray to match your dark UI */
+  background: #F4E6D8; /* warm golden */
+  color: #5a3434;       /* dark icon contrast */
 }
 
 body.dark .planner-page {
