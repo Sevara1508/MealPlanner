@@ -316,9 +316,18 @@ onMounted(async () => {
 body.dark {
   --deep-rosewood: #3A2A2A;   
   --dusty-rosewood: #8A5A5A;  
-  --warm-beige: #C8AFA5;      /* glow beige */
-  --soft-blush: #2F2222;      /* card bg */
-  --pale-blush: #1A1414;      /* main bg (NOT black) */
+  --warm-beige: #C8AFA5;      
+  --soft-blush: #2F2222;      
+  --pale-blush: #1A1414;      
+}
+
+.brand-logo {
+  filter: none;
+}
+
+body.dark .brand-logo {
+  filter: brightness(0.75) contrast(1.05) saturate(0.95)
+          drop-shadow(0 0 6px rgba(139, 30, 30, 0.25));
 }
 
 .filters {
