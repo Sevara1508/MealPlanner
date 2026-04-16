@@ -7,6 +7,8 @@ const path = require('path')
 
 // ── DB setup (creates file automatically) ──
 const db = new Database(path.join(__dirname, '../db/mealplanner.db'))
+
+// Create users table if it doesn't exist
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,6 +19,7 @@ db.exec(`
   )
 `)
 
+// JWT cookie settings — httpOnly prevents JS access, secure only in production
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -25,6 +28,8 @@ const COOKIE_OPTIONS = {
 }
 
 // Register
+// Creates a new user, hashes their password, and returns a JWT cookie
+
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body
   if (!name || !email || !password)
@@ -45,6 +50,8 @@ router.post('/register', async (req, res) => {
 })
 
 // Login
+// Verifies credentials and returns a JWT cookie
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email)
@@ -59,12 +66,16 @@ router.post('/login', async (req, res) => {
 })
 
 // Logout
+// Clears the JWT cookie to end the session
+
 router.post('/logout', (req, res) => {
   res.clearCookie('token')
   res.json({ message: 'Logged out' })
 })
 
 // Get current user (restores session on refresh)
+// Reads the JWT cookie to restore the session on page refresh
+
 router.get('/me', (req, res) => {
   const token = req.cookies?.token
   if (!token) return res.status(401).json({ message: 'Not authenticated' })
