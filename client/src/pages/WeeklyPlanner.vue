@@ -1,5 +1,5 @@
 <template>
-  <div class="planner-page" @click="resetSelection">
+  <div class="planner-page" @click.self="resetSelection">
     <!-- NAVBAR -->
     <header class="navbar">
       <div class="brand">
@@ -18,7 +18,7 @@
           </button>
         </template>
 
-        <button v-else class="signin-btn" @click="showAuthModal = true">
+        <button v-else class="signin-btn" @click.stop="showAuthModal = true">
           Sign in
         </button>
       </nav>
@@ -74,6 +74,13 @@
                 class="meal"
                 @click.stop="selectRecipe(mealPlan[day][meal])"
               >
+                <button 
+                  class="remove-btn"
+                  @click.stop="removeMeal(day, meal)"
+                >
+                  ✕
+                </button>
+
                 <img :src="mealPlan[day][meal].image" />
                 <p>{{ mealPlan[day][meal].title }}</p>
               </div>
@@ -153,6 +160,11 @@
         </svg>
       </span>
     </button>
+    <AuthModal 
+      v-if="showAuthModal" 
+      @success="onAuthSuccess" 
+      @close="showAuthModal = false" 
+    />
   </div>
 </template>
 
@@ -302,11 +314,41 @@ onMounted(async () => {
 
 async function handleLogout() {
   await logout()
+  mealPlan.value = {
+    Mon: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Tue: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Wed: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Thu: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Fri: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Sat: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Sun: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  }
 }
 
 function onAuthSuccess() {
   showAuthModal.value = false
 }
+
+watch(authUser, (newUser) => {
+  if (!newUser) {
+    // user logged OUT → clear planner
+    mealPlan.value = {
+      Mon: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+      Tue: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+      Wed: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+      Thu: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+      Fri: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+      Sat: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+      Sun: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    }
+  } else {
+    // user logged IN → reload saved plan
+    const saved = localStorage.getItem('mealPlan')
+    if (saved) {
+      mealPlan.value = JSON.parse(saved)
+    }
+  }
+})
 
 // ===== SELECTION STATE =====
 const selectedDay = ref(null)
@@ -320,6 +362,12 @@ const selectedRecipe = ref(null)
 function selectDay(day) {
   selectedDay.value = day
   selectedRecipe.value = null
+}
+
+function removeMeal(day, mealType) {
+  mealPlan.value[day][mealType] = null
+
+  localStorage.setItem('mealPlan', JSON.stringify(mealPlan.value))
 }
 
 /**
@@ -529,6 +577,12 @@ function clearPlan() {
   transform: scale(1.05);
 }
 
+/* FORCE MODAL ON TOP */
+.auth-modal {
+  position: fixed;
+  z-index: 99999 !important;
+}
+
 /* BACK BUTTON */
 .back-btn {
   display: inline-flex;
@@ -563,6 +617,25 @@ function clearPlan() {
 .back-btn:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(117, 55, 66, 0.18);
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #753742;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.remove-btn:hover {
+  background: #4F3130;
 }
 
 /* CELLS */
@@ -811,16 +884,16 @@ body.dark .back-btn:hover {
   display: block;
 }
 
-/* 🌙 LIGHT MODE (moon showing) */
+/* LIGHT MODE (moon showing) */
 body:not(.dark) .theme-toggle {
-  background: #5A3434;   /* dark rosewood */
-  color: #F4E6D8;        /* soft cream moon */
+  background: #5A3434;   
+  color: #F4E6D8;        
 }
 
 /* DARK MODE (sun button) */
 body.dark .theme-toggle {
-  background: #F4E6D8; /* warm golden */
-  color: #5a3434;       /* dark icon contrast */
+  background: #F4E6D8; 
+  color: #5a3434;       
 }
 
 body.dark .planner-page {
