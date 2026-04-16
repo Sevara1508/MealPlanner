@@ -62,7 +62,7 @@ MealPlanner/
 ```
 ---
 
-## Environment Variables Setup (IMPORTANT)
+## Environment Variables Setup
 
 This project requires a **Spoonacular API key** to run properly.
 
