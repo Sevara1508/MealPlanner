@@ -25,9 +25,12 @@
     </header>
 
     <div class="container">
+
+      <!-- Navigation button to return to previous page -->
       <button class="back-btn" @click="$router.back()">← Back</button>
       <div class="title-row">
         <h1 class="title">Weekly Meal Planner</h1>
+        <!-- Action buttons for exporting grocery list and clearing plan -->
         <button class="action-btn primary" @click="exportGroceryList">
           🛒 Export Grocery List
         </button>
@@ -84,6 +87,7 @@
         <div class="macro-box">
           <h2>{{ macroTitle }}</h2>
 
+          <!-- D3.js chart container for visualizing macros -->
           <div ref="chartRef" style="margin-top: 20px;"></div>
 
           <div class="macro">
@@ -94,6 +98,7 @@
               <strong>{{ macros.calories }}</strong>
             </div>
 
+            <!-- Macro nutrient rows with color-coded dots -->
             <div class="macro-row">
               <span class="dot" :style="{ background: color('Protein') }"></span>
               <span>Protein</span>
@@ -116,6 +121,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Theme toggle button - fixed position bottom left -->
     <button class="theme-toggle" @click="toggleTheme">
       <span v-if="isDark">
         <!-- REAL SUN ICON -->
@@ -151,6 +158,8 @@
 
 
 <script setup>
+
+// Import necessary Vue composition API functions
 import { ref, computed } from 'vue'
 import * as d3 from 'd3'
 import { watch, nextTick } from 'vue'
@@ -158,21 +167,31 @@ import AuthModal from '../components/AuthModal.vue'
 import { useAuth } from '../composables/useAuth'
 import logo from '../assets/ReciPeekLogo.png'
 
+// ===== AUTHENTICATION =====
 const { user, fetchUser, logout } = useAuth()
 
 const authUser = computed(() => user.value)
 
 const showAuthModal = ref(false)
 
+// ===== CHART REFERENCE =====
 const chartRef = ref(null)
 
+// ===== COLOR SCHEME FOR MACROS =====
 const color = d3.scaleOrdinal()
   .domain(['Calories', 'Protein', 'Carbs', 'Fat'])
   .range(['#753742', '#4F3130', '#D3AB9E', '#EAC9C1'])
 
+
+/**
+ * Renders a pie chart using D3.js to visualize macro nutrient distribution
+ * Called whenever macro data changes
+ */
+
 function renderChart() {
   if (!chartRef.value) return
 
+  // Prepare data for chart
   const data = [
     { name: 'Calories', value: macros.value.calories },
     { name: 'Protein', value: macros.value.protein },
@@ -180,12 +199,14 @@ function renderChart() {
     { name: 'Fat', value: macros.value.fat },
   ]
 
-  d3.select(chartRef.value).selectAll('*').remove()
+  d3.select(chartRef.value).selectAll('*').remove()      // Clear previous chart
 
+  // Chart dimensions
   const width = 260
   const height = 260
   const radius = Math.min(width, height) / 2
 
+  // Create SVG container
   const svg = d3.select(chartRef.value)
     .append('svg')
     .attr('width', width)
@@ -193,12 +214,14 @@ function renderChart() {
     .append('g')
     .attr('transform', `translate(${width / 2}, ${height / 2})`)
 
+  // Create pie chart layout
   const pie = d3.pie().value(d => d.value)
 
   const arc = d3.arc()
     .innerRadius(0)
     .outerRadius(radius - 10)
 
+   // Draw pie slices
   const arcs = svg.selectAll('arc')
     .data(pie(data))
     .enter()
@@ -211,8 +234,13 @@ function renderChart() {
     .style('stroke-width', '2px')
 }
 
+// ===== THEME MANAGEMENT =====
 const isDark = ref(false)
 
+/**
+ * Toggles between light and dark themes
+ * Updates body class and persists preference to localStorage
+ */
 function toggleTheme() {
   isDark.value = !isDark.value
 
@@ -225,6 +253,7 @@ function toggleTheme() {
   localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
 }
 
+// ===== MEAL PLAN DATA STRUCTURE =====
 const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 const mealTypes = ['Breakfast','Lunch','Dinner','Snack']
 
@@ -239,6 +268,9 @@ const mealPlan = ref({
   Sun: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
 })
 
+/**
+ * Converts abbreviated day names to full names for display
+ */
 const fullDayName = (short) => {
   return {
     Mon: "Monday",
@@ -276,26 +308,42 @@ function onAuthSuccess() {
   showAuthModal.value = false
 }
 
+// ===== SELECTION STATE =====
 const selectedDay = ref(null)
 const selectedRecipe = ref(null)
 
 // ===== SELECT LOGIC =====
+/**
+ * Selects a day and clears recipe selection
+ */
+  
 function selectDay(day) {
   selectedDay.value = day
   selectedRecipe.value = null
 }
 
+/**
+ * Selects a recipe and clears day selection
+ */
 function selectRecipe(recipe) {
   selectedRecipe.value = recipe
   selectedDay.value = null
 }
 
+/**
+ * Resets all selections (clears both day and recipe)
+ */
 function resetSelection() {
   selectedDay.value = null
   selectedRecipe.value = null
 }
 
 // ===== MACRO CALCULATIONS =====
+/**
+ * Computes total macro nutrients for the entire week
+ * Sums calories, protein, carbs, and fat from all meals
+ */
+  
 const weeklyMacros = computed(() => {
   const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 }
 
@@ -329,6 +377,12 @@ const dayMacros = computed(() => {
   return totals
 })
 
+/**
+ * Main macro display - shows different data based on selection:
+ * - If recipe selected: shows recipe macros
+ * - If day selected: shows day totals
+ * - Otherwise: shows weekly totals
+ */
 const macros = computed(() => {
   if (selectedRecipe.value) return selectedRecipe.value
   if (selectedDay.value) return dayMacros.value
@@ -346,6 +400,12 @@ const macroTitle = computed(() => {
   return "Weekly Nutrition"
 })
 
+// ===== UTILITY FUNCTIONS =====
+
+/**
+ * Exports all ingredients from the meal plan to a text file
+ * Creates a formatted grocery list with checkboxes
+ */
 function exportGroceryList() {
   const allIngredients = new Set()  // Set auto-deduplicates
 
@@ -361,6 +421,7 @@ function exportGroceryList() {
     return
   }
 
+  // Format the grocery list
   const today = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })
   let content = `🍽 Recipeek — Grocery List\nGenerated: ${today}\n`
   content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`
@@ -378,6 +439,10 @@ function exportGroceryList() {
   URL.revokeObjectURL(url)
 }
 
+/**
+ * Clears the entire meal plan after user confirmation
+ * Resets all meal slots to null and removes from localStorage
+ */
 function clearPlan() {
   if (!confirm('Clear your entire meal plan?')) return
   localStorage.removeItem('mealPlan')
