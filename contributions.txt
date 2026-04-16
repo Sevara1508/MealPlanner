@@ -1,6 +1,8 @@
 Bushrat Zahan (100919304):
-- Login/Logout Feature
-- Ratings and Reviews Feature
+- Created Login/Logout Feature
+- Made the Ratings Feature
+- Made the Review Feature
+- Updated Recipe Page
 - Documentation: editing code comments
 
 Menhdi Patel (100915876):
@@ -19,7 +21,8 @@ Nabiha Shah (100874544):
 
 Selena Bradshaw (100919722):
 - Made the NavBar
-- Made the HomePage/Trending Feature
+- Made the HomePage
+- Made the Trending Feature
 - Updated Favourites Feature
 - Documentation: Readme files and txt files
 
