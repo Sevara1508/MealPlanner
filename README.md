@@ -24,6 +24,7 @@ This project was developed as a group web development project.
 - Interactive D3 chart feature
 - Responsive navigation bar
 - Styled user interface with animations and hover effects
+- Generate and export grocery list from weekly plan
 
 ---
 
@@ -59,6 +60,38 @@ MealPlanner/
 ├── ai-prompts.txt
 └── README.md
 ```
+---
+
+## Environment Variables Setup
+
+This project requires a **Spoonacular API key** to run properly.
+
+### Step 1: Create a Spoonacular Account
+- Go to https://spoonacular.com/food-api  
+- Sign up for a **free account**
+- Confirm your email address
+- Navigate to Profile & API Key and generate and copy your API key
+
+### Step 2: Create a `.env` File
+Create a file named `.env` in the **root of the project** (same level as `client/` and `server` folders).
+
+### Step 3: Add Your API Key
+Inside the `.env` file, add the following:
+
+```bash
+SPOONACULAR_API_KEY=your_api_key_here
+PORT=3001
+JWT_SECRET=mySuperSecretKey123!
+```
+⚠️ Replace `your_api_key_here` with your actual Spoonacular API key.
+
+### Important Notes
+- Each user must generate their own API key for the application to work  
+- Do **not** share your API key publicly  
+- Do **not** commit your `.env` file to version control (e.g. GitHub)
+  
+---
+
 ## How To Run
 
 ### Installations
