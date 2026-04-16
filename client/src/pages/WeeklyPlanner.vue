@@ -165,6 +165,16 @@
       @success="onAuthSuccess" 
       @close="showAuthModal = false" 
     />
+    <div v-if="showConfirm" class="confirm-overlay">
+      <div class="confirm-box">
+        <p>Clear your entire meal plan?</p>
+
+        <div class="confirm-actions">
+          <button class="cancel-btn" @click="cancelClear">Cancel</button>
+          <button class="confirm-btn" @click="confirmClear">Clear</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -194,6 +204,7 @@ const color = d3.scaleOrdinal()
   .domain(['Calories', 'Protein', 'Carbs', 'Fat'])
   .range(['#753742', '#4F3130', '#D3AB9E', '#EAC9C1'])
 
+const showConfirm = ref(false)
 
 /**
  * Renders a pie chart using D3.js to visualize macro nutrient distribution
@@ -492,7 +503,20 @@ function exportGroceryList() {
  * Resets all meal slots to null and removes from localStorage
  */
 function clearPlan() {
-  if (!confirm('Clear your entire meal plan?')) return
+  localStorage.removeItem('mealPlan')
+
+  mealPlan.value = {
+    Mon: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Tue: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Wed: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Thu: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Fri: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Sat: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+    Sun: { Breakfast:null, Lunch:null, Dinner:null, Snack:null },
+  }
+}
+
+function confirmClear() {
   localStorage.removeItem('mealPlan')
   mealPlan.value = {
     Mon: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
@@ -503,6 +527,11 @@ function clearPlan() {
     Sat: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
     Sun: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
   }
+  showConfirm.value = false
+}
+
+function cancelClear() {
+  showConfirm.value = false
 }
 
 </script>

@@ -267,6 +267,9 @@
         </svg>
       </span>
     </button>
+    <div v-if="showToast" class="toast">
+      {{ toastMessage }}
+    </div>
   </div>
 </template>
 
@@ -284,6 +287,8 @@ const recipe = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const nutrition = ref([])
+const showToast = ref(false)
+const toastMessage = ref('')
 
 // ── Auth ──
 const { user, fetchUser, logout } = useAuth()
@@ -377,7 +382,16 @@ function handleAdd() {
   selectedDay.value = ''
   selectedMeal.value = ''
 
-  alert('Added to meal plan!')
+  showCuteToast('Added to meal plan!')
+}
+
+function showCuteToast(message) {
+  toastMessage.value = message
+  showToast.value = true
+
+  setTimeout(() => {
+    showToast.value = false
+  }, 2000)
 }
 
 // ── Favorites ──
@@ -609,6 +623,45 @@ onMounted(async () => {
   justify-content: center;
   font-size: 0.8rem;
   flex-shrink: 0;
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+
+  background: linear-gradient(135deg, #753742, #4F3130);
+  color: white;
+
+  padding: 0.9rem 1.4rem;
+  border-radius: 999px;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+
+  animation: fadeInOut 2s ease forwards;
+  z-index: 9999;
+}
+
+/* smooth fade */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 /* ===== REVIEWS ===== */
