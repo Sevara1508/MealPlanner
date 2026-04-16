@@ -26,7 +26,13 @@
 
     <div class="container">
       <button class="back-btn" @click="$router.back()">← Back</button>
-      <h1 class="title">Weekly Meal Planner</h1>
+      <div class="title-row">
+        <h1 class="title">Weekly Meal Planner</h1>
+        <button class="grocery-btn" @click="exportGroceryList">
+          🛒 Export Grocery List
+        </button>
+        <button class="clear-btn" @click="clearPlan">🗑 Clear Plan</button>
+      </div>
 
       <div class="layout">
 
@@ -337,6 +343,53 @@ const macroTitle = computed(() => {
   if (selectedDay.value) return fullDayName(selectedDay.value)
   return "Weekly Nutrition"
 })
+
+function exportGroceryList() {
+  const allIngredients = new Set()  // Set auto-deduplicates
+
+  Object.values(mealPlan.value).forEach(meals => {
+    Object.values(meals).forEach(meal => {
+      if (!meal?.ingredients) return
+      meal.ingredients.forEach(ing => allIngredients.add(ing))
+    })
+  })
+
+  if (allIngredients.size === 0) {
+    alert('Add some meals to your plan first!')
+    return
+  }
+
+  const today = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })
+  let content = `🍽 Recipeek — Grocery List\nGenerated: ${today}\n`
+  content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`
+  allIngredients.forEach(ing => {
+    content += `☐  ${ing}\n`
+  })
+  content += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\nMade with Recipeek ♥`
+
+  const blob = new Blob([content], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'recipeek-grocery-list.txt'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function clearPlan() {
+  if (!confirm('Clear your entire meal plan?')) return
+  const key = authUser.value ? `mealPlan_${authUser.value.name}` : 'mealPlan_guest'
+  localStorage.removeItem(key)
+  mealPlan.value = {
+    Mon: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Tue: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Wed: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Thu: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Fri: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Sat: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+    Sun: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
+  }
+}
 
 </script>
 
@@ -730,5 +783,83 @@ body.dark .navbar {
 body.dark .day-row::before {
   background: #1a1a1a;
   border-color: #333;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title-row .title {
+  margin-bottom: 0;
+}
+
+.grocery-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #753742;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(117, 55, 66, 0.3);
+  transition: all 0.2s ease;
+}
+
+.grocery-btn:hover {
+  background: #4F3130;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(117, 55, 66, 0.4);
+}
+
+body.dark .grocery-btn {
+  background: #EAC9C1;
+  color: #4F3130;
+}
+
+body.dark .grocery-btn:hover {
+  background: #D3AB9E;
+}
+
+.clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  color: #753742;
+  border: 1.5px solid #753742;
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #753742;
+  color: white;
+  transform: translateY(-2px);
+}
+
+body.dark .clear-btn {
+  background: transparent;
+  color: #EAC9C1;
+  border-color: #EAC9C1;
+}
+
+body.dark .clear-btn:hover {
+  background: #EAC9C1;
+  color: #4F3130;
 }
 </style>

@@ -27,7 +27,16 @@
       <button class="back-btn" @click="$router.back()">← Back</button>
 
       <!-- LOADING / ERROR -->
-      <div v-if="loading" class="recipe-loading">Loading recipe...</div>
+      <div v-if="loading" class="recipe-loading">
+        <svg width="55" height="55" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#753742" stroke-width="4"
+            stroke-dasharray="31.4 94.2">
+            <animateTransform attributeName="transform" type="rotate"
+              from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <p>Loading recipe...</p>
+      </div>
       <div v-else-if="error" class="recipe-loading">{{ error }}</div>
 
       <template v-else>
@@ -329,6 +338,7 @@ function handleAdd() {
     protein: getVal('Protein'),
     carbs: getVal('Carbohydrates'),
     fat: getVal('Fat'),
+    ingredients: recipe.value.extendedIngredients?.map(i => `${i.amount} ${i.unit} ${i.name}`.trim()) ?? []
   }
 
   const emptyPlan = {
@@ -823,4 +833,15 @@ body.dark .theme-toggle {
   background: #F4E6D8; /* warm golden */
   color: #5a3434;       /* dark icon contrast */
 }
+
+.recipe-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 4rem;
+  color: #753742;
+  font-size: 1.1rem;
+}
+
 </style>

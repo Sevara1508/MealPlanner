@@ -77,7 +77,18 @@
           </div>
 
         </div>
-        <div v-if="recipes.length" class="recipe-grid">
+        <!-- LOADING -->
+        <div v-if="loadingRecipes" class="recipe-loading">
+          <svg width="55" height="55" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#753742" stroke-width="4"
+              stroke-dasharray="31.4 94.2">
+              <animateTransform attributeName="transform" type="rotate"
+                from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+          <p>Loading recipes...</p>
+        </div>
+        <div v-else-if="recipes.length" class="recipe-grid">
           <div
             v-for="recipe in filteredRecipes"
             :key="recipe.id"
@@ -133,10 +144,7 @@
       <span v-else>
         <!-- Moon -->
         <svg viewBox="0 0 24 24" class="icon">
-          <path
-            d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"
-            fill="currentColor"
-          />
+          <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>
         </svg>
       </span>
     </button>
@@ -157,6 +165,8 @@ const authUser = computed(() => user.value)
 const showAuthModal = ref(false)
 const searchQuery = ref('')
 const recipes = ref([])
+
+const loadingRecipes = ref(true) 
 
 const filters = ref({
   vegetarian: false,
@@ -299,6 +309,8 @@ onMounted(async () => {
     recipes.value = allRecipes.slice(0, 12) // limit to 12 cards
   } catch (err) {
     console.error('Trending load error:', err)
+  } finally {
+    loadingRecipes.value = false
   }
 })
 </script>
@@ -773,6 +785,16 @@ body.dark .signin-btn {
 
 .heart-btn.popping svg {
   filter: drop-shadow(0 0 6px rgba(231, 76, 60, 0.6));
+}
+
+.recipe-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 4rem;
+  color: #753742;
+  font-size: 1.1rem;
 }
 
 </style>
