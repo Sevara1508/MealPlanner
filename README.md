@@ -82,7 +82,7 @@ Inside the `.env` file, add the following:
 SPOONACULAR_API_KEY=your_api_key_here
 PORT=3001
 JWT_SECRET=mySuperSecretKey123!
-
+```
 ⚠️ Replace `your_api_key_here` with your actual Spoonacular API key.
 
 ### Important Notes
