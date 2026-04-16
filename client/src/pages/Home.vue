@@ -1,5 +1,6 @@
 <template>
   <div class="page">
+    <!-- NAVBAR - Main navigation header with authentication -->
     <header class="navbar">
       <div class="brand">
         <img :src="logo" alt="Meal Planner" class="brand-logo" />
@@ -10,6 +11,7 @@
         <router-link to="/favorites">Favorites</router-link>
         <router-link to="/planner">Planner</router-link>
 
+        <!-- Conditional authentication buttons based on user login state -->
         <template v-if="authUser">
           <button class="signout-btn" @click="handleLogout">Sign out</button>
         </template>
@@ -24,6 +26,7 @@
       <section class="discover-section">
         <h2>Trending Recipes</h2>
 
+        <!-- Search bar for recipe discovery -->
         <div class="search-bar">
           <input
             v-model="searchQuery"
@@ -33,6 +36,7 @@
           />
           <button @click="searchRecipes">Search</button>
         </div>
+        <!-- Filter options for dietary restrictions and preferences -->
         <div class="filters">
           <label>
             <input type="checkbox" v-model="filters.vegetarian" />
@@ -77,7 +81,8 @@
           </div>
 
         </div>
-        <!-- LOADING -->
+       
+        <!-- LOADING STATE - Shows spinner while fetching recipes -->
         <div v-if="loadingRecipes" class="recipe-loading">
           <svg width="55" height="55" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
             <circle cx="25" cy="25" r="20" fill="none" stroke="#753742" stroke-width="4"
@@ -88,6 +93,7 @@
           </svg>
           <p>Loading recipes...</p>
         </div>
+        <!-- RECIPES GRID - Displays filtered recipes -->
         <div v-else-if="recipes.length" class="recipe-grid">
           <div
             v-for="recipe in filteredRecipes"
@@ -115,12 +121,14 @@
       </section>
     </main>
 
+    <!-- Authentication modal component -->
     <AuthModal
       :show="showAuthModal"
       @close="showAuthModal = false"
       @success="onAuthSuccess"
     />
 
+    <!-- Theme toggle button - fixed position bottom left -->
     <button class="theme-toggle" @click="toggleTheme">
       <span v-if="isDark">
         <!-- REAL SUN ICON -->
@@ -152,22 +160,30 @@
 </template>
 
 <script setup>
+// Import Vue composition API functions
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
 import AuthModal from '../components/AuthModal.vue'
 import logo from '../assets/ReciPeekLogo.png'
 
+// ===== AUTHENTICATION SETUP =====
 const { user, fetchUser, logout } = useAuth()
 
 const authUser = computed(() => user.value)
 
 const showAuthModal = ref(false)
+
+// ===== RECIPE SEARCH AND FILTERING =====
 const searchQuery = ref('')
 const recipes = ref([])
 
 const loadingRecipes = ref(true) 
 
+/**
+ * Filter configuration object for dietary preferences and constraints
+ * Includes: vegetarian, vegan, gluten-free, dairy-free, max time, and servings
+ */
 const filters = ref({
   vegetarian: false,
   vegan: false,
@@ -177,20 +193,28 @@ const filters = ref({
   servings: null,
 })
 
+/**
+ * Computed property that filters recipes based on all active filters
+ * Applies dietary restrictions, time limits, and serving size constraints
+ */
 const filteredRecipes = computed(() => {
   return recipes.value.filter((recipe) => {
+     // Extract nutrition data
     const nutrients = recipe.nutrition?.nutrients || []
 
     const calories = nutrients.find(n => n.name === 'Calories')?.amount || 0
 
+    // Get dietary flags from recipe
     const isVegetarian = recipe.vegetarian === true
     const isVegan = recipe.vegan === true
     const isGlutenFree = recipe.glutenFree === true
     const isDairyFree = recipe.dairyFree === true
 
+    // Get recipe metrics
     const time = recipe.readyInMinutes || 0
     const servings = recipe.servings || 0
 
+    // Sanitize filter values
     const maxTime = Math.max(0, filters.value.maxTime || 0)
     const servingsFilter = Math.max(0, filters.value.servings || 0)
 
@@ -221,13 +245,19 @@ const filteredRecipes = computed(() => {
   })
 })
 
+// Import favorites functionality
 import { Heart } from 'lucide-vue-next'
 import { useFavorites } from '../composables/useFavorites'
 
 const { isFavorited, toggleFavorite, loadFavorites } = useFavorites()
 
+// ===== THEME MANAGEMENT =====
 const isDark = ref(false)
 
+/**
+ * Toggles between light and dark themes
+ * Updates body class and persists preference to localStorage
+ */
 function toggleTheme() {
   isDark.value = !isDark.value
 
@@ -239,6 +269,11 @@ function toggleTheme() {
 
   localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
 }
+
+/**
+ * Searches for recipes using the Spoonacular API
+ * Only executes if search query is not empty
+ */
 
 async function searchRecipes() {
   if (!searchQuery.value.trim()) return
@@ -255,6 +290,12 @@ async function searchRecipes() {
   }
 }
 
+/**
+ * Handles favorite/unfavorite action on a recipe
+ * @param {Object} recipe - The recipe object to favorite/unfavorite
+ * Shows auth modal if user is not logged in, otherwise toggles favorite
+ */
+
 function handleFavorite(recipe) {
   if (!authUser.value) {
     showAuthModal.value = true
@@ -270,19 +311,33 @@ function handleFavorite(recipe) {
   }, 400)
 }
 
+/**
+ * Sanitizes filter inputs to prevent negative values
+ */
 function sanitizeFilters() {
   if (filters.value.maxTime < 0) filters.value.maxTime = 0
   if (filters.value.servings < 0) filters.value.servings = 0
 }
 
+/**
+ * Handles user logout - clears authentication state
+ */
 async function handleLogout() {
   await logout()
 }
 
+/**
+ * Handles successful authentication
+ * Closes the auth modal after login
+ */
 function onAuthSuccess() {
   showAuthModal.value = false
 }
 
+// ===== COMPONENT LIFECYCLE =====
+/**
+ * Component mounted - initializes user data, favorites, theme, and trending recipes
+ */
 onMounted(async () => {
   await fetchUser()
   await loadFavorites()
@@ -305,7 +360,8 @@ onMounted(async () => {
 
       allRecipes = [...allRecipes, ...(res.data.results || [])]
     }
-
+    
+    // Limit to 12 recipes for better performance and layout
     recipes.value = allRecipes.slice(0, 12) // limit to 12 cards
   } catch (err) {
     console.error('Trending load error:', err)
@@ -317,6 +373,8 @@ onMounted(async () => {
 
 <style>
 
+/* ===== CSS VARIABLES ===== */
+
 :root {
   --deep-rosewood: #4F3130;
   --dusty-rosewood: #753742;
@@ -324,6 +382,8 @@ onMounted(async () => {
   --soft-blush: #EAC9C1;
   --pale-blush: #EBD8D0;
 }
+
+/* Dark mode variable overrides */
 
 body.dark {
   --deep-rosewood: #3A2A2A;   
@@ -333,6 +393,7 @@ body.dark {
   --pale-blush: #1A1414;      
 }
 
+/* ===== BRAND LOGO STYLES ===== */
 .brand-logo {
   filter: none;
 }
@@ -342,6 +403,7 @@ body.dark .brand-logo {
           drop-shadow(0 0 6px rgba(139, 30, 30, 0.25));
 }
 
+/* ===== FILTERS SECTION ===== */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -375,12 +437,14 @@ body.dark .brand-logo {
   box-shadow: 0 0 0 2px rgba(117, 55, 66, 0.15);
 }
 
+/* ===== PAGE LAYOUT ===== */
 .page {
   min-height: 100vh;
   background: #ecdcd4;
   color: #2f1d1d;
 }
 
+/* ===== NAVBAR STYLES ===== */
 .navbar {
   background: #5a3434;
   color: #fff;
@@ -428,6 +492,7 @@ body.dark .brand-logo {
   font-weight: 500;
 }
 
+/* ===== AUTHENTICATION BUTTONS ===== */
 .signin-btn,
 .signout-btn {
   border: none;
@@ -459,6 +524,7 @@ body.dark .brand-logo {
   background: #ecd3ca;
 }
 
+/* ===== MAIN CONTENT ===== */
 .content {
   padding: 2rem 1.8rem 3rem;
 }
@@ -471,6 +537,7 @@ body.dark .brand-logo {
   color: #1f1010;
 }
 
+/* ===== SEARCH BAR ===== */
 .search-bar {
   display: flex;
   gap: 0.6rem;
@@ -496,6 +563,7 @@ body.dark .brand-logo {
   cursor: pointer;
 }
 
+/* ===== RECIPE GRID ===== */
 .recipe-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -589,6 +657,7 @@ body.dark .brand-logo {
   font-weight: 500;
 }
 
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1100px) {
   .days-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -621,6 +690,7 @@ body.dark .brand-logo {
   }
 }
 
+/* ===== THEME TOGGLE BUTTON ===== */
 .theme-toggle {
   position: fixed;
   bottom: 20px;
