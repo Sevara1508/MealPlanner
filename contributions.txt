@@ -14,6 +14,7 @@ Nabiha Shah (100874544):
 - Designed Recipeek Logo
 - Recipe Page
 - D3 Chart Feature
+- Grocery List Export & Clear Planner Button
 - Made Video Submission
 
 Selena Bradshaw (100919722):
@@ -25,6 +26,7 @@ Selena Bradshaw (100919722):
 Sevara Omonova (100923669):
 - Spoonacular API
 - Created the Favourites Feature
+- Animated SVG loading spinners on recipe pages
 
 Sruthika Kunapalan (100928466):
 - Made the Filter Feature
