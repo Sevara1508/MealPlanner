@@ -24,6 +24,7 @@ This project was developed as a group web development project.
 - Interactive D3 chart feature
 - Responsive navigation bar
 - Styled user interface with animations and hover effects
+- Generate and export grocery list from weekly plan
 
 ---
 
