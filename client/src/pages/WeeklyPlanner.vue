@@ -380,8 +380,7 @@ function exportGroceryList() {
 
 function clearPlan() {
   if (!confirm('Clear your entire meal plan?')) return
-  const key = authUser.value ? `mealPlan_${authUser.value.name}` : 'mealPlan_guest'
-  localStorage.removeItem(key)
+  localStorage.removeItem('mealPlan')
   mealPlan.value = {
     Mon: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
     Tue: { Breakfast: null, Lunch: null, Dinner: null, Snack: null },
