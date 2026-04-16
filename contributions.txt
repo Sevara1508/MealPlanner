@@ -16,7 +16,7 @@ Nabiha Shah (100874544):
 - Designed Recipeek Logo
 - Recipe Page
 - D3 Chart Feature
-- Grocery List Export & Clear Plan Button
+- Grocery List Export & Clear Planner Button
 - Made Video Submission
 
 Selena Bradshaw (100919722):
