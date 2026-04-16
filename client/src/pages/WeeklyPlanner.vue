@@ -28,10 +28,12 @@
       <button class="back-btn" @click="$router.back()">← Back</button>
       <div class="title-row">
         <h1 class="title">Weekly Meal Planner</h1>
-        <button class="grocery-btn" @click="exportGroceryList">
+        <button class="action-btn primary" @click="exportGroceryList">
           🛒 Export Grocery List
         </button>
-        <button class="clear-btn" @click="clearPlan">🗑 Clear Plan</button>
+        <button class="action-btn secondary" @click="clearPlan">
+          🗑 Clear Plan
+        </button>
       </div>
 
       <div class="layout">
@@ -788,77 +790,73 @@ body.dark .day-row::before {
 .title-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
 }
 
 .title-row .title {
+  margin-right: auto;
   margin-bottom: 0;
 }
 
-.grocery-btn {
+/* SHARED BUTTON BASE */
+.action-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: #753742;
-  color: white;
-  border: none;
   border-radius: 999px;
-  padding: 0.55rem 1.2rem;
-  font-size: 0.88rem;
+  padding: 0.65rem 1.3rem;
+  font-size: 0.9rem;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(117, 55, 66, 0.3);
   transition: all 0.2s ease;
 }
 
-.grocery-btn:hover {
-  background: #4F3130;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(117, 55, 66, 0.4);
+/* primary (export) */
+.action-btn.primary {
+  background: #753742;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(117, 55, 66, 0.3);
 }
 
-body.dark .grocery-btn {
+.action-btn.primary:hover {
+  background: #4F3130;
+  transform: translateY(-2px);
+}
+
+/* secondary (clear) */
+.action-btn.secondary {
+  background: white;
+  color: #753742;
+  border: 1.5px solid #753742;
+}
+
+.action-btn.secondary:hover {
+  background: #753742;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ===== DARK MODE ===== */
+body.dark .action-btn.primary {
   background: #EAC9C1;
   color: #4F3130;
 }
 
-body.dark .grocery-btn:hover {
+body.dark .action-btn.primary:hover {
   background: #D3AB9E;
 }
 
-.clear-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: white;
-  color: #753742;
-  border: 1.5px solid #753742;
-  border-radius: 999px;
-  padding: 0.55rem 1.2rem;
-  font-size: 0.88rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.clear-btn:hover {
-  background: #753742;
-  color: white;
-  transform: translateY(-2px);
-}
-
-body.dark .clear-btn {
-  background: transparent;
+body.dark .action-btn.secondary {
+  background: rgba(234, 201, 193, 0.1);
   color: #EAC9C1;
   border-color: #EAC9C1;
 }
 
-body.dark .clear-btn:hover {
+body.dark .action-btn.secondary:hover {
   background: #EAC9C1;
   color: #4F3130;
 }
