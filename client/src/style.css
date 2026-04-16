@@ -1,4 +1,6 @@
 /* ===== RESET ===== */
+/* Remove default browser spacing and use border-box sizing for all elements */
+
 * {
   margin: 0;
   padding: 0;
@@ -6,6 +8,7 @@
 }
 
 /* ===== COLOR SYSTEM ===== */
+/* Global CSS variables for the app's color palette */
 :root {
   --deep-rosewood: #4F3130;
   --dusty-rosewood: #753742;
@@ -15,6 +18,7 @@
 }
 
 /* ===== BASE ===== */
+/* Full-page layout with app font and background color */
 html, body, #app {
   width: 100%;
   height: 100%;
@@ -22,6 +26,7 @@ html, body, #app {
   font-family: 'Inter', sans-serif;
 }
 
+/* Remove default Vue app container constraints */
 #app {
   margin: 0;
   max-width: none;
@@ -29,6 +34,7 @@ html, body, #app {
 }
 
 /* ===== NAVBAR ===== */
+/* Full-width top navigation bar */
 .navbar {
   width: 100%;
   background-color: var(--deep-rosewood);
@@ -38,6 +44,7 @@ html, body, #app {
   padding: 1.2rem 2rem;
 }
 
+/* Nav link spacing and hover effect */
 .nav-links span {
   margin-left: 20px;
   cursor: pointer;
@@ -48,6 +55,7 @@ html, body, #app {
 }
 
 /* ===== CONTAINER ===== */
+/* Main page wrapper with vertical stacking */
 .container {
   width: 100%;
   padding: 2rem;
@@ -57,6 +65,7 @@ html, body, #app {
 }
 
 /* ===== SEARCH ===== */
+/* Search bar layout and styling */
 .search-bar {
   display: flex;
   gap: 10px;
@@ -85,6 +94,8 @@ html, body, #app {
 }
 
 /* ===== GRID ===== */
+/* Responsive recipe card grid — fills available width */
+
 .recipe-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -92,6 +103,7 @@ html, body, #app {
 }
 
 /* ===== CARD ===== */
+/* Recipe card with hover lift effect */
 .card {
   background: white;
   border-radius: 18px;
@@ -116,6 +128,7 @@ html, body, #app {
 }
 
 /* ===== CALENDAR ===== */
+/* 7-column weekly calendar grid */
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -132,6 +145,7 @@ html, body, #app {
   color: var(--dusty-rosewood);
 }
 
+/* Drop zone for dragging meals onto a day */
 .drop-zone {
   margin-top: 10px;
   min-height: 90px;
@@ -149,6 +163,7 @@ html, body, #app {
 }
 
 /* ===== CHARTS ===== */
+/* Side-by-side chart containers */
 .charts {
   display: flex;
   gap: 20px;
@@ -166,6 +181,7 @@ html, body, #app {
 }
 
 /* ===== DARK MODE TEXT FIX ===== */
+/* Ensure all text is readable in dark mode */
 
 body.dark h1,
 body.dark h2,
@@ -200,11 +216,12 @@ body.dark .ingredient-item {
   border-bottom: 1px solid #333;
 }
 
-/* fix step numbers */
+/* Muted step number circles in dark mode */
 body.dark .step-number {
   background: #444;
 }
 
+/* Brand logo sizing */
 .brand-logo {
   height: 50px;
   width: auto;
