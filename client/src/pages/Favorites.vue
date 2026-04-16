@@ -1,15 +1,21 @@
 <template>
   <div class="favorites-page">
+
+    <!-- NAVBAR - Main navigation header with authentication -->
     <header class="navbar">
       <div class="brand">
         <img :src="logo" alt="Meal Planner" class="brand-logo" />
       </div>
 
       <nav class="nav-links">
+
+        <!-- Router links for main navigation -->
         <router-link to="/">Home</router-link>
         <router-link to="/favorites">Favorites</router-link>
         <router-link to="/planner">Planner</router-link>
 
+      
+        <!-- Conditional authentication buttons -->
         <template v-if="authUser">
           <button class="signout-btn" @click="handleLogout">Sign out</button>
         </template>
@@ -21,18 +27,22 @@
     </header>
 
     <div class="favorites-content">
+      <!-- Back navigation button -->
       <button class="back-btn" @click="$router.back()">← Back</button>
       <h1 class="title">Your Favorites</h1>
-      
+
+      <!-- State 1: User not authenticated -->
       <div v-if="!authUser" class="empty">
         <p>Please sign in to view your favorites.</p>
       </div>
 
+      <!-- State 2: Authenticated but no favorites yet -->
       <div v-else-if="favorites.length === 0" class="empty">
         <p>No favorite recipes yet</p>
         <span>Start adding some delicious meals!</span>
       </div>
 
+       <!-- State 3: Display favorites grid with animation -->
       <transition-group name="fade" tag="div" class="grid">
         <div
           v-for="recipe in favorites"
@@ -60,12 +70,14 @@
       </transition-group>
     </div>
 
+    <!-- Authentication modal component -->
     <AuthModal
       :show="showAuthModal"
       @close="showAuthModal = false"
       @success="onAuthSuccess"
     />
 
+    <!-- Theme toggle button - fixed position bottom left -->
     <button class="theme-toggle" @click="toggleTheme">
       <span v-if="isDark">
         <!-- REAL SUN ICON -->
@@ -100,6 +112,7 @@
 </template>
 
 <script setup>
+// Import Vue composition API functions
 import { computed, onMounted, ref } from 'vue'
 import { Heart } from 'lucide-vue-next'
 import { useAuth } from '../composables/useAuth'
@@ -107,13 +120,20 @@ import logo from '../assets/ReciPeekLogo.png'
 import { useFavorites } from '../composables/useFavorites'
 import AuthModal from '../components/AuthModal.vue'
 
+// ===== AUTHENTICATION SETUP =====
 const { user, logout, fetchUser } = useAuth()
 const authUser = computed(() => user.value)
 
 const showAuthModal = ref(false)
 
+// ===== FAVORITES MANAGEMENT =====
 const { favorites, loadFavorites, removeFavorite } = useFavorites()
 
+/**
+ * Handles removing a recipe from favorites with visual feedback
+ * @param {string|number} recipeId - The ID of the recipe to remove
+ * @param {Object} recipe - The recipe object for animation triggering
+ */
 function handleUnfavorite(recipeId, recipe) {
   removeFavorite(recipeId)
 
@@ -124,16 +144,27 @@ function handleUnfavorite(recipeId, recipe) {
   }, 400)
 }
 
+/**
+ * Handles user logout - clears authentication state
+ */
 async function handleLogout() {
   await logout()
 }
 
+/**
+ * Handles successful authentication
+ * Closes modal, refreshes user data, and loads favorites
+ */
 async function onAuthSuccess() {
   showAuthModal.value = false
   await fetchUser()
   await loadFavorites()
 }
 
+// ===== COMPONENT LIFECYCLE =====
+/**
+ * Component mounted - initializes user data, favorites, and theme
+ */
 onMounted(async () => {
   await fetchUser()
   await loadFavorites()
@@ -146,8 +177,13 @@ onMounted(async () => {
   }
 })
 
-const isDark = ref(false)
+// ===== THEME MANAGEMENT =====
+const isDark = ref(false)      // Tracks current theme (dark/light)
 
+/**
+ * Toggles between light and dark themes
+ * Updates body class and persists preference to localStorage
+ */
 function toggleTheme() {
   isDark.value = !isDark.value
 
@@ -161,7 +197,9 @@ function toggleTheme() {
 }
 </script>
 
+
 <style scoped>
+/* ===== GLOBAL PAGE STYLES ===== */
 .favorites-page {
   min-height: 100vh;
   background: #ecdcd4;
@@ -171,6 +209,7 @@ function toggleTheme() {
   padding: 2rem;
 }
 
+/* ===== NAVBAR STYLES ===== */
 .navbar {
   background: #5a3434;
   color: #fff;
@@ -198,6 +237,7 @@ function toggleTheme() {
   font-weight: 500;
 }
 
+/* ===== AUTHENTICATION BUTTONS ===== */
 .signin-btn,
 .signout-btn {
   border: none;
@@ -241,12 +281,14 @@ function toggleTheme() {
   margin-top: 3rem;
 }
 
+/* ===== FAVORITES GRID LAYOUT ===== */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.5rem;
 }
 
+/* ===== RECIPE CARD STYLES ===== */
 .card {
   position: relative;
   background: white;
@@ -283,6 +325,7 @@ function toggleTheme() {
   padding-bottom: 0.75rem;
 }
 
+/* ===== UNSAVE BUTTON (legacy - may be unused) ===== */
 .unsave-btn {
   display: flex;
   align-items: center;
@@ -302,6 +345,8 @@ function toggleTheme() {
   background: #ecd3ca;
 }
 
+/* ===== ANIMATIONS ===== */
+/* Fade animation for grid items when adding/removing */
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.3s ease;
@@ -313,6 +358,7 @@ function toggleTheme() {
   transform: scale(0.9);
 }
 
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 700px) {
   .navbar {
     flex-direction: column;
@@ -329,6 +375,7 @@ function toggleTheme() {
   }
 }
 
+/* ===== BACK BUTTON ===== */
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -418,6 +465,7 @@ body.dark .theme-toggle {
   color: #5a3434;       /* dark icon contrast */
 }
 
+/* ===== HEART BUTTON ANIMATIONS ===== */
 .heart-btn {
   position: absolute;
   top: 10px;
