@@ -1,25 +1,37 @@
 <template>
+
+  <!-- Teleport renders the modal directly in <body> to avoid z-index/overflow issues -->
   <Teleport to="body">
+    
+    <!-- Fade transition when modal opens/closes -->
     <Transition name="modal-fade">
       <div v-if="show" class="overlay" @click.self="$emit('close')">
         <div class="modal">
+          
+          <!-- Close button in top-right corner -->
           <button class="close-btn" @click="$emit('close')">✕</button>
-
+          
+          <!-- Modal header — title and subtitle change based on login/register mode -->
           <div class="modal-header">
             <span class="logo-icon">🍽️</span>
             <h2>{{ isLogin ? 'Welcome back' : 'Create account' }}</h2>
             <p class="subtitle">{{ isLogin ? 'Sign in to your meal planner' : 'Start planning your meals today' }}</p>
           </div>
-
+          
+          <!-- Error banner — slides in if login/register fails -->
           <Transition name="slide-down">
             <div v-if="error" class="error-banner">{{ error }}</div>
           </Transition>
 
           <form @submit.prevent="handleSubmit" class="auth-form">
+
+            <!-- Name field only shown in register mode -->
             <div v-if="!isLogin" class="field">
               <label>Full name</label>
               <input v-model="form.name" type="text" placeholder="Jane Doe" required />
             </div>
+
+            <!-- Password field with show/hide toggle -->
             <div class="field">
               <label>Email</label>
               <input v-model="form.email" type="email" placeholder="you@email.com" required />
@@ -33,6 +45,8 @@
                   placeholder="••••••••"
                   required
                 />
+
+                <!-- Eye icon toggles between open (visible) and closed (hidden) -->
                 <button type="button" class="toggle-pw" @click="showPassword = !showPassword">
                   <svg v-if="showPassword" viewBox="0 0 24 24" class="eye-icon">
                     <!-- closed eye -->
@@ -49,12 +63,14 @@
               </div>
             </div>
 
+            <!-- Submit button — shows spinner while request is in progress -->
             <button type="submit" class="submit-btn" :disabled="loading">
               <span v-if="loading" class="spinner"></span>
               <span v-else>{{ isLogin ? 'Sign in' : 'Create account' }}</span>
             </button>
           </form>
-
+          
+          <!-- Toggle between login and register modes -->
           <p class="switch-text">
             {{ isLogin ? "Don't have an account?" : 'Already have an account?' }}
             <button class="switch-btn" @click="toggleMode">
@@ -71,23 +87,27 @@
 import { ref, reactive } from 'vue'
 import { useAuth } from '../composables/useAuth'
 
+// Props: controls whether the modal is visible
 defineProps({ show: Boolean })
 const emit = defineEmits(['close', 'success'])
 
 const { login, register } = useAuth()
 
+// Tracks whether we're in login or register mode
 const isLogin = ref(true)
 const loading = ref(false)
 const error = ref('')
 const showPassword = ref(false)
 const form = reactive({ name: '', email: '', password: '' })
 
+// Switch between login and register, clearing errors and form
 function toggleMode() {
   isLogin.value = !isLogin.value
   error.value = ''
   Object.assign(form, { name: '', email: '', password: '' })
 }
 
+// Calls login or register depending on current mode, then emits success
 async function handleSubmit() {
   error.value = ''
   loading.value = true
