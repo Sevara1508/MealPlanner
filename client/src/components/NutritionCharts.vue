@@ -6,6 +6,8 @@
       <h3>Macro Breakdown</h3>
       <div v-if="hasMeals">
         <svg ref="pieRef"></svg>
+
+        <!-- Color-coded legend below the pie chart -->
         <div class="legend">
           <span v-for="d in pieData" :key="d.label" class="legend-item">
             <span class="legend-dot" :style="{ background: d.color }"></span>
@@ -32,6 +34,7 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import * as d3 from 'd3'
 
+// mealPlan is passed in from the parent — an object keyed by day (Mon, Tue, etc.)
 const props = defineProps({
   mealPlan: {
     type: Object,
@@ -39,21 +42,25 @@ const props = defineProps({
   },
 })
 
+// DOM refs for D3 to render into
 const pieRef = ref(null)
 const barRef = ref(null)
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+// Color palette for each macro
 const colors = {
   protein: '#5a3434',
   carbs:   '#b97c8a',
   fat:     '#d9b7ac',
 }
 
+// Only show charts if at least one day has calorie data
 const hasMeals = computed(() =>
   days.some(d => props.mealPlan[d] && props.mealPlan[d].calories)
 )
 
+// Aggregate total protein, carbs, fat across all days for the pie chart
 const pieData = computed(() => {
   let protein = 0, carbs = 0, fat = 0
   days.forEach(d => {
@@ -71,6 +78,7 @@ const pieData = computed(() => {
   ]
 })
 
+// Map each day to its calorie total for the bar chart
 const barData = computed(() =>
   days.map(d => ({
     day: d,
@@ -78,6 +86,7 @@ const barData = computed(() =>
   }))
 )
 
+// ── D3 Pie Chart ──
 function drawPie() {
   if (!pieRef.value) return
 
@@ -105,6 +114,7 @@ function drawPie() {
     .attr('stroke-width', 2)
 }
 
+// ── D3 Bar Chart ──
 function drawBar() {
   if (!barRef.value) return
 
@@ -127,6 +137,7 @@ function drawBar() {
     .range([0, innerW])
     .padding(0.3)
 
+  // Y axis — scales to 110% of the max calorie value for breathing room
   const maxCal = d3.max(barData.value, d => d.calories) || 500
 
   const y = d3.scaleLinear()
@@ -157,6 +168,7 @@ function drawBar() {
     .attr('rx', 6)
 }
 
+// Redraw both charts after DOM updates
 function drawCharts() {
   nextTick(() => {
     drawPie()
@@ -164,6 +176,7 @@ function drawCharts() {
   })
 }
 
+// Draw on first load and whenever mealPlan changes
 onMounted(drawCharts)
 watch(() => props.mealPlan, drawCharts, { deep: true })
 </script>
