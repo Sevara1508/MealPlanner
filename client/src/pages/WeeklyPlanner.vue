@@ -1,3 +1,7 @@
+<!-- 
+WeeklyPlanner.vue — Weekly Meal Planner Page
+Handles meal grid, macro tracking, and grocery export
+ -->
 <template>
   <div class="planner-page" @click.self="resetSelection">
     <!-- NAVBAR -->

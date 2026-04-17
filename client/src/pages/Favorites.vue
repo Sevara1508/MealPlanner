@@ -1,3 +1,7 @@
+<!-- 
+Favorites.vue — Saved Recipes Page
+Displays and manages the user's favorited recipes
+-->
 <template>
   <div class="favorites-page">
 

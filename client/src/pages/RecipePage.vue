@@ -1,3 +1,7 @@
+<!-- 
+RecipePage.vue — Individual Recipe Page
+Handles recipe display, nutrition, reviews, and meal plan adding 
+-->
 <template>
   <div class="app">
 

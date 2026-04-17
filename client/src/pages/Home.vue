@@ -1,3 +1,7 @@
+<!-- 
+Home.vue — Main Discovery Page
+Handles recipe search, filtering, and trending recipes 
+-->
 <template>
   <div class="page">
     <!-- NAVBAR - Main navigation header with authentication -->
