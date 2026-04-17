@@ -389,6 +389,7 @@ function handleAdd() {
   showCuteToast('Added to meal plan!')
 }
 
+//briefly show toast notification then hide after 2 seconds
 function showCuteToast(message) {
   toastMessage.value = message
   showToast.value = true
@@ -412,6 +413,7 @@ function handleFavorite(recipe) {
   setTimeout(() => { recipe._popping = false }, 400)
 }
 
+//helper to pull specific nutrient value by name + round it
 // ── Nutrition helper ──
 const get = (name) => {
   const found = nutrition.value.find(n => n.name === name)
@@ -428,6 +430,7 @@ const reviewSuccess = ref(false)
 
 const ratingLabels = { 1: 'Not worth it', 2: 'Underwhelming', 3: 'Pretty decent', 4: 'Really good', 5: 'Would make again ♥' }
 
+//true if the logged-in user already has a review for this recipe
 const hasUserReviewed = computed(() => {
   if (!authUser.value) return false
   return reviewData.value.reviews.some(r => r.user_name === authUser.value.name)
@@ -451,6 +454,7 @@ function formatDate(dateStr) {
   })
 }
 
+//fetch all reviews for this recipe and pre-fills form if user has reviewed
 async function loadReviews() {
   try {
     const res = await fetch(`http://localhost:3001/api/recipes/${route.params.id}/reviews`)
@@ -469,6 +473,7 @@ async function loadReviews() {
   }
 }
 
+//posts or updates user's review, then reloads the reviews list
 async function submitReview() {
   if (!selectedRating.value) return
   submittingReview.value = true
