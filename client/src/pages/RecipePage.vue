@@ -93,6 +93,7 @@
                   <option>Breakfast</option>
                   <option>Lunch</option>
                   <option>Dinner</option>
+                  <option>Snack</option>
                 </select>
 
                 <button class="confirm-btn" @click="handleAdd">Add</button>
