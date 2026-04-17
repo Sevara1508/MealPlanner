@@ -161,7 +161,7 @@
       </span>
     </button>
     <AuthModal 
-      v-if="showAuthModal" 
+      :show="showAuthModal"
       @success="onAuthSuccess" 
       @close="showAuthModal = false" 
     />
@@ -537,6 +537,7 @@ function cancelClear() {
 </script>
 
 <style scoped>
+/* styling for page*/
 .planner-page {
   min-height: 100vh;
   background: #ecdcd4;
