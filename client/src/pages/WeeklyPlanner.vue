@@ -323,6 +323,7 @@ onMounted(async () => {
   }
 })
 
+//clears meal plan on logout so data doesn't leak between users
 async function handleLogout() {
   await logout()
   mealPlan.value = {
@@ -336,10 +337,12 @@ async function handleLogout() {
   }
 }
 
+//close auth modal after successful login or signup
 function onAuthSuccess() {
   showAuthModal.value = false
 }
 
+//sync meal plan with auth state — clear on logout, restore on login
 watch(authUser, (newUser) => {
   if (!newUser) {
     // user logged OUT → clear planner
@@ -530,6 +533,7 @@ function confirmClear() {
   showConfirm.value = false
 }
 
+//dismiss confirmation dialog without clearing
 function cancelClear() {
   showConfirm.value = false
 }
@@ -708,6 +712,7 @@ function cancelClear() {
   text-align: center;
 }
 
+/*prevent meal content from intercepting click events meant for the cell */
 .meal img,
 .meal p {
   pointer-events: none;
@@ -827,6 +832,7 @@ body.dark .back-btn:hover {
   pointer-events: none;
 }
 
+/* display:contents lets children participate in  parent grid directly */
 .day-row {
   display: contents; /* keeps grid layout intact */
 }

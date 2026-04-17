@@ -283,6 +283,7 @@ import { useAuth } from '../composables/useAuth'
 import AuthModal from '../components/AuthModal.vue'
 import logo from '../assets/ReciPeekLogo.png'
 
+// ===== PAGE SETUP =====
 const route = useRoute()
 const recipe = ref(null)
 const loading = ref(true)
@@ -296,6 +297,7 @@ const { user, fetchUser, logout } = useAuth()
 const authUser = computed(() => user.value)
 const showAuthModal = ref(false)
 
+//refetches user after logout to clear auth state
 async function handleLogout() {
   await logout()
   await fetchUser()
@@ -313,6 +315,7 @@ const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 const selectedDay = ref('')
 const selectedMeal = ref('')
 
+//saves selected recipe to the meal plan in localStorage
 function handleAdd() {
   if (!authUser.value) {
     showAuthModal.value = true
